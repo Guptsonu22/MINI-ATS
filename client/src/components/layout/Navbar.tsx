@@ -44,8 +44,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileMenu, isBackendHealt
             isBackendHealthy === true
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
               : isBackendHealthy === false
-              ? 'bg-rose-50 text-rose-700 border-rose-200'
-              : 'bg-amber-50 text-amber-700 border-amber-200'
+                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200'
           }`}
           title="Backend API Connection Status"
         >
@@ -54,16 +54,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileMenu, isBackendHealt
               isBackendHealthy === true
                 ? 'bg-emerald-500 animate-pulse'
                 : isBackendHealthy === false
-                ? 'bg-rose-500'
-                : 'bg-amber-500'
+                  ? 'bg-rose-500'
+                  : 'bg-amber-500'
             }`}
           />
           <span className="hidden sm:inline">
             {isBackendHealthy === true
               ? 'API Online'
               : isBackendHealthy === false
-              ? 'API Offline (Preview Mode)'
-              : 'Checking API...'}
+                ? 'API Offline (Preview Mode)'
+                : 'Checking API...'}
           </span>
         </div>
 

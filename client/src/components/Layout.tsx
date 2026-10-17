@@ -21,7 +21,7 @@ export const Layout: React.FC = () => {
           }
         }
         setIsBackendHealthy(false);
-      } catch (err) {
+      } catch {
         setIsBackendHealthy(false);
       }
     };

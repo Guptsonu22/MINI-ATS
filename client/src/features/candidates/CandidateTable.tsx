@@ -82,11 +82,14 @@ export const CandidateTable: React.FC<CandidateTableProps> = ({
                 .slice(0, 2)
                 .toUpperCase();
 
-              const formattedDate = new Date(candidate.applicationDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              });
+              const formattedDate = new Date(candidate.applicationDate).toLocaleDateString(
+                'en-US',
+                {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                }
+              );
 
               return (
                 <tr

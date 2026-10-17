@@ -2,6 +2,7 @@
   "name": "mini-ats-monorepo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Mini Applicant Tracking System (ATS) - Full Stack Intern Project",
   "workspaces": [
     "server",

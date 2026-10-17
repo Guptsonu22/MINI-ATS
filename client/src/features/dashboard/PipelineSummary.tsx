@@ -67,9 +67,7 @@ export const PipelineSummary: React.FC<PipelineSummaryProps> = ({
     <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="text-base font-semibold text-slate-900">
-            Hiring Pipeline Distribution
-          </h3>
+          <h3 className="text-base font-semibold text-slate-900">Hiring Pipeline Distribution</h3>
           <p className="text-xs text-slate-500">
             Current applicant funnel across the 6 canonical ATS stages.
           </p>
@@ -86,8 +84,7 @@ export const PipelineSummary: React.FC<PipelineSummaryProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {stages.map((stage, idx) => {
           const count = stageCounts[stage.name] || 0;
-          const percentage =
-            totalCandidates > 0 ? Math.round((count / totalCandidates) * 100) : 0;
+          const percentage = totalCandidates > 0 ? Math.round((count / totalCandidates) * 100) : 0;
 
           return (
             <div

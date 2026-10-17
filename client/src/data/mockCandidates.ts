@@ -31,7 +31,8 @@ export const INITIAL_MOCK_CANDIDATES: Candidate[] = [
     currentStage: 'Interview',
     applicationDate: '2026-10-10T09:30:00.000Z',
     resumeUrl: 'https://example.com/resumes/aarav_sharma.pdf',
-    notes: 'Strong portfolio in modern full-stack web applications. Cleared technical screening with top marks.',
+    notes:
+      'Strong portfolio in modern full-stack web applications. Cleared technical screening with top marks.',
     stageHistory: [
       {
         fromStage: null,
@@ -68,7 +69,8 @@ export const INITIAL_MOCK_CANDIDATES: Candidate[] = [
     currentStage: 'Offer',
     applicationDate: '2026-10-05T14:20:00.000Z',
     resumeUrl: 'https://example.com/resumes/priya_patel.pdf',
-    notes: 'Excellent design sensibility and deep understanding of frontend performance. Offer letter drafted.',
+    notes:
+      'Excellent design sensibility and deep understanding of frontend performance. Offer letter drafted.',
     stageHistory: [
       {
         fromStage: null,

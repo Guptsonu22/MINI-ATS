@@ -38,9 +38,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </div>
 
       <div className="mt-3 flex items-baseline justify-between">
-        <div className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-          {value}
-        </div>
+        <div className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">{value}</div>
         {badgeText && (
           <span
             className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${badgeColorClasses[badgeColor]}`}

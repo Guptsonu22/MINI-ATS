@@ -24,7 +24,18 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
 }) => {
   const isEditing = Boolean(initialData);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    appliedRole: string;
+    experience: number;
+    source: string;
+    skillsString: string;
+    currentStage: CanonicalStage;
+    resumeUrl: string;
+    notes: string;
+  }>({
     name: '',
     email: '',
     phone: '',
@@ -223,7 +234,9 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
             required
             options={stageOptions}
             value={formData.currentStage}
-            onChange={e => setFormData({ ...formData, currentStage: e.target.value as CanonicalStage })}
+            onChange={e =>
+              setFormData({ ...formData, currentStage: e.target.value as CanonicalStage })
+            }
           />
         </div>
 

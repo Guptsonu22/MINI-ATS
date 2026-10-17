@@ -43,8 +43,8 @@ export const DashboardShell: React.FC = () => {
             Recruitment Command Center
           </h1>
           <p className="mt-2 text-slate-300 text-sm md:text-base leading-relaxed">
-            Professional Applicant Tracking System built with React, Vite, TypeScript, Express,
-            and MongoDB. Phase 1 monorepo scaffold, health-check API, and design system are live.
+            Professional Applicant Tracking System built with React, Vite, TypeScript, Express, and
+            MongoDB. Phase 1 monorepo scaffold, health-check API, and design system are live.
           </p>
         </div>
       </div>
@@ -60,7 +60,11 @@ export const DashboardShell: React.FC = () => {
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-slate-900">
-              {isBackendHealthy ? 'Online' : isBackendHealthy === false ? 'Offline' : 'Connecting...'}
+              {isBackendHealthy
+                ? 'Online'
+                : isBackendHealthy === false
+                  ? 'Offline'
+                  : 'Connecting...'}
             </span>
             <span
               className={`inline-block h-2.5 w-2.5 rounded-full ${
@@ -69,7 +73,9 @@ export const DashboardShell: React.FC = () => {
             />
           </div>
           <p className="mt-2 text-xs text-slate-500">
-            {healthData ? `Uptime: ${healthData.uptimeSeconds}s | Env: ${healthData.environment}` : 'Connecting to /api/health...'}
+            {healthData
+              ? `Uptime: ${healthData.uptimeSeconds}s | Env: ${healthData.environment}`
+              : 'Connecting to /api/health...'}
           </p>
         </div>
 
@@ -98,7 +104,9 @@ export const DashboardShell: React.FC = () => {
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-slate-900">MongoDB</span>
           </div>
-          <p className="mt-2 text-xs text-slate-500">127.0.0.1:27017 (Verified ready for Phase 2)</p>
+          <p className="mt-2 text-xs text-slate-500">
+            127.0.0.1:27017 (Verified ready for Phase 2)
+          </p>
         </div>
       </div>
 
@@ -151,7 +159,8 @@ export const DashboardShell: React.FC = () => {
                 Phase 1: Project Scaffolding & Health Check (Active)
               </p>
               <p className="text-xs text-emerald-700 mt-0.5">
-                Vite + React 18, Tailwind CSS, Express backend, TypeScript strict mode, health endpoint, tests.
+                Vite + React 18, Tailwind CSS, Express backend, TypeScript strict mode, health
+                endpoint, tests.
               </p>
             </div>
           </div>
@@ -163,7 +172,8 @@ export const DashboardShell: React.FC = () => {
                 Phase 2: Database Schema, Validation & Realistic Seed Data
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Mongoose Candidate model, Zod validation schemas, error middleware, and 20+ seed candidates.
+                Mongoose Candidate model, Zod validation schemas, error middleware, and 20+ seed
+                candidates.
               </p>
             </div>
           </div>
@@ -175,7 +185,8 @@ export const DashboardShell: React.FC = () => {
                 Phase 3: Candidate CRUD, Multi-Filter Search & Analytics API
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Search by name/email, filter by stage/role/exp, pagination, stage transitions, and summary metrics.
+                Search by name/email, filter by stage/role/exp, pagination, stage transitions, and
+                summary metrics.
               </p>
             </div>
           </div>

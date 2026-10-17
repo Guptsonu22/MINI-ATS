@@ -122,7 +122,11 @@ export const CandidateFilters: React.FC<CandidateFiltersProps> = ({
             {search && (
               <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 border border-slate-200">
                 Query: "{search}"
-                <button type="button" onClick={() => onSearchChange('')} className="hover:text-rose-500">
+                <button
+                  type="button"
+                  onClick={() => onSearchChange('')}
+                  className="hover:text-rose-500"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -130,7 +134,11 @@ export const CandidateFilters: React.FC<CandidateFiltersProps> = ({
             {selectedStage && (
               <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 border border-slate-200">
                 Stage: {selectedStage}
-                <button type="button" onClick={() => onStageChange('')} className="hover:text-rose-500">
+                <button
+                  type="button"
+                  onClick={() => onStageChange('')}
+                  className="hover:text-rose-500"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -138,7 +146,11 @@ export const CandidateFilters: React.FC<CandidateFiltersProps> = ({
             {selectedRole && (
               <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 border border-slate-200">
                 Role: {selectedRole}
-                <button type="button" onClick={() => onRoleChange('')} className="hover:text-rose-500">
+                <button
+                  type="button"
+                  onClick={() => onRoleChange('')}
+                  className="hover:text-rose-500"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -146,7 +158,11 @@ export const CandidateFilters: React.FC<CandidateFiltersProps> = ({
             {selectedExp && (
               <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 border border-slate-200">
                 Exp: {selectedExp} yrs
-                <button type="button" onClick={() => onExpChange('')} className="hover:text-rose-500">
+                <button
+                  type="button"
+                  onClick={() => onExpChange('')}
+                  className="hover:text-rose-500"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </span>

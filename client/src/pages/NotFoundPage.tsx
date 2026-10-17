@@ -13,7 +13,8 @@ export const NotFoundPage: React.FC = () => {
       </div>
       <h1 className="text-2xl font-bold text-slate-900">Page Not Found</h1>
       <p className="mt-2 max-w-sm text-sm text-slate-500">
-        The requested page does not exist or has been moved to another route in the Applicant Tracking System.
+        The requested page does not exist or has been moved to another route in the Applicant
+        Tracking System.
       </p>
       <div className="mt-6">
         <Button

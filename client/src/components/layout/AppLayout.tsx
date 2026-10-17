@@ -23,7 +23,7 @@ export const AppLayout: React.FC = () => {
           }
         }
         setIsBackendHealthy(false);
-      } catch (err) {
+      } catch {
         setIsBackendHealthy(false);
       }
     };
@@ -37,10 +37,7 @@ export const AppLayout: React.FC = () => {
         onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
         isBackendHealthy={isBackendHealthy}
       />
-      <MobileDrawer
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
+      <MobileDrawer isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">

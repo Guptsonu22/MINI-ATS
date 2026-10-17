@@ -29,15 +29,11 @@ export const CandidateDetailPage: React.FC = () => {
 
   // Find candidate by ID or fallback to first candidate for demo
   const [candidate, setCandidate] = useState<Candidate | undefined>(() => {
-    return (
-      INITIAL_MOCK_CANDIDATES.find(c => c.id === id) || INITIAL_MOCK_CANDIDATES[0]
-    );
+    return INITIAL_MOCK_CANDIDATES.find(c => c.id === id) || INITIAL_MOCK_CANDIDATES[0];
   });
 
   const [isChangeStageOpen, setIsChangeStageOpen] = useState(false);
-  const [newStage, setNewStage] = useState<CanonicalStage>(
-    candidate?.currentStage || 'Applied'
-  );
+  const [newStage, setNewStage] = useState<CanonicalStage>(candidate?.currentStage || 'Applied');
   const [stageNote, setStageNote] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -272,9 +268,7 @@ export const CandidateDetailPage: React.FC = () => {
         <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-base font-semibold text-slate-900">
-                Hiring Pipeline History
-              </h3>
+              <h3 className="text-base font-semibold text-slate-900">Hiring Pipeline History</h3>
               <p className="text-xs text-slate-500">
                 Audit trail of recruitment stage changes and milestone notes.
               </p>
@@ -305,11 +299,7 @@ export const CandidateDetailPage: React.FC = () => {
         maxWidth="md"
         footer={
           <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsChangeStageOpen(false)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setIsChangeStageOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" size="sm" onClick={handleStageChangeSubmit}>

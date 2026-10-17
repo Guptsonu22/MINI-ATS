@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Users,
-  UserCheck,
-  Calendar,
-  Award,
-  Plus,
-  ArrowRight,
-  Sparkles,
-} from 'lucide-react';
+import { Users, UserCheck, Calendar, Award, Plus, ArrowRight, Sparkles } from 'lucide-react';
 import { MetricCard } from '../features/dashboard/MetricCard';
 import { PipelineSummary } from '../features/dashboard/PipelineSummary';
 import { RecentActivity } from '../features/dashboard/RecentActivity';

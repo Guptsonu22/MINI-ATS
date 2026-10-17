@@ -1,12 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Users,
-  GitPullRequest,
-  BarChart3,
-  Sparkles,
-} from 'lucide-react';
+import { LayoutDashboard, Users, GitPullRequest, BarChart3, Sparkles } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const navItems = [
@@ -54,7 +48,8 @@ export const Sidebar: React.FC = () => {
             <span>Frontend Preview</span>
           </div>
           <p className="mt-1 text-slate-500 leading-relaxed">
-            Phase 2 UI layout with responsive mobile navigation and interactive presentation mock data.
+            Phase 2 UI layout with responsive mobile navigation and interactive presentation mock
+            data.
           </p>
         </div>
       </div>
