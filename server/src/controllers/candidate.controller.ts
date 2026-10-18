@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { RequestHandler } from 'express';
 import { candidateService } from '../services/candidate.service.js';
 import {
   CreateCandidateInput,
@@ -7,13 +7,11 @@ import {
   CandidateQueryInput,
 } from '../schemas/candidate.schema.js';
 
-export const createCandidateHandler = async (
-  req: Request<unknown, unknown, CreateCandidateInput>,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const createCandidateHandler: RequestHandler = async (req, res, next): Promise<void> => {
   try {
-    const candidate = await candidateService.createCandidate(req.body);
+    const candidate = await candidateService.createCandidate(
+      req.body as unknown as CreateCandidateInput
+    );
 
     res.status(201).json({
       success: true,
@@ -25,13 +23,10 @@ export const createCandidateHandler = async (
   }
 };
 
-export const getCandidatesHandler = async (
-  req: Request<unknown, unknown, unknown, CandidateQueryInput>,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getCandidatesHandler: RequestHandler = async (req, res, next): Promise<void> => {
   try {
-    const { candidates, pagination } = await candidateService.getCandidates(req.query);
+    const query = req.query as unknown as CandidateQueryInput;
+    const { candidates, pagination } = await candidateService.getCandidates(query);
 
     res.status(200).json({
       success: true,
@@ -43,13 +38,9 @@ export const getCandidatesHandler = async (
   }
 };
 
-export const getCandidateByIdHandler = async (
-  req: Request<{ id: string }>,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getCandidateByIdHandler: RequestHandler = async (req, res, next): Promise<void> => {
   try {
-    const candidate = await candidateService.getCandidateById(req.params.id);
+    const candidate = await candidateService.getCandidateById(req.params.id as string);
 
     res.status(200).json({
       success: true,
@@ -60,13 +51,12 @@ export const getCandidateByIdHandler = async (
   }
 };
 
-export const updateCandidateHandler = async (
-  req: Request<{ id: string }, unknown, UpdateCandidateInput>,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const updateCandidateHandler: RequestHandler = async (req, res, next): Promise<void> => {
   try {
-    const candidate = await candidateService.updateCandidate(req.params.id, req.body);
+    const candidate = await candidateService.updateCandidate(
+      req.params.id as string,
+      req.body as unknown as UpdateCandidateInput
+    );
 
     res.status(200).json({
       success: true,
@@ -78,15 +68,15 @@ export const updateCandidateHandler = async (
   }
 };
 
-export const updateCandidateStageHandler = async (
-  req: Request<{ id: string }, unknown, UpdateCandidateStageInput>,
-  res: Response,
-  next: NextFunction
+export const updateCandidateStageHandler: RequestHandler = async (
+  req,
+  res,
+  next
 ): Promise<void> => {
   try {
-    const { stage, note, changedBy } = req.body;
+    const { stage, note, changedBy } = req.body as unknown as UpdateCandidateStageInput;
     const candidate = await candidateService.updateCandidateStage(
-      req.params.id,
+      req.params.id as string,
       stage,
       note,
       changedBy
@@ -102,13 +92,9 @@ export const updateCandidateStageHandler = async (
   }
 };
 
-export const deleteCandidateHandler = async (
-  req: Request<{ id: string }>,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const deleteCandidateHandler: RequestHandler = async (req, res, next): Promise<void> => {
   try {
-    const candidate = await candidateService.deleteCandidate(req.params.id);
+    const candidate = await candidateService.deleteCandidate(req.params.id as string);
 
     res.status(200).json({
       success: true,

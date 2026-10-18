@@ -32,17 +32,23 @@ export const errorHandler = (
   }
 
   // 2. Mongoose Duplicate Key Error (E11000)
-  if ('code' in err && (err as MongoDuplicateKeyError).code === 11000) {
-    const mongoErr = err as MongoDuplicateKeyError;
-    const field = mongoErr.keyValue ? Object.keys(mongoErr.keyValue)[0] : 'field';
-    const value = mongoErr.keyValue ? mongoErr.keyValue[field] : 'value';
+  const isMongoDuplicate =
+    typeof (err as unknown as { code?: unknown }).code === 'number' &&
+    (err as unknown as { code: number }).code === 11000;
+
+  if (isMongoDuplicate) {
+    const mongoErr = err as unknown as MongoDuplicateKeyError;
+    const keyValue = mongoErr.keyValue || {};
+    const keys = Object.keys(keyValue);
+    const field = keys.length > 0 && keys[0] ? keys[0] : 'field';
+    const value = field !== 'field' && keyValue[field] ? keyValue[field] : 'value';
 
     res.status(409).json({
       success: false,
       error: {
         message: `A candidate with ${field} '${value}' already exists.`,
         code: 'DUPLICATE_ENTRY',
-        details: [{ field: field || 'email', message: `Duplicate value '${value}' is not allowed` }],
+        details: [{ field, message: `Duplicate value '${value}' is not allowed` }],
       },
     });
     return;
@@ -91,7 +97,7 @@ export const errorHandler = (
   }
 
   // 6. Generic unhandled server error
-  const statusCode = (err as { statusCode?: number }).statusCode || 500;
+  const statusCode = (err as unknown as { statusCode?: number }).statusCode || 500;
   const message =
     statusCode === 500 && env.NODE_ENV === 'production'
       ? 'An unexpected internal server error occurred'
@@ -105,7 +111,7 @@ export const errorHandler = (
     success: false,
     error: {
       message,
-      code: (err as { code?: string }).code || 'INTERNAL_SERVER_ERROR',
+      code: (err as unknown as { code?: string }).code || 'INTERNAL_SERVER_ERROR',
       ...(env.NODE_ENV === 'development' ? { stack: err.stack } : {}),
     },
   });

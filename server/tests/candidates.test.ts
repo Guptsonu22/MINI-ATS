@@ -24,9 +24,7 @@ describe('Candidate REST API Endpoints', () => {
 
   describe('POST /api/candidates', () => {
     it('creates a new candidate with 201 Created and default Applied stage', async () => {
-      const res = await request(app)
-        .post('/api/candidates')
-        .send(sampleCandidate);
+      const res = await request(app).post('/api/candidates').send(sampleCandidate);
 
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty('success', true);
@@ -46,11 +44,9 @@ describe('Candidate REST API Endpoints', () => {
     });
 
     it('rejects candidate with missing required fields (400 Bad Request)', async () => {
-      const res = await request(app)
-        .post('/api/candidates')
-        .send({
-          name: 'Incomplete Candidate',
-        });
+      const res = await request(app).post('/api/candidates').send({
+        name: 'Incomplete Candidate',
+      });
 
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty('success', false);
@@ -212,12 +208,10 @@ describe('Candidate REST API Endpoints', () => {
         stageHistory: [{ toStage: 'Applied', changedAt: new Date() }],
       });
 
-      const res = await request(app)
-        .patch(`/api/candidates/${created.id}`)
-        .send({
-          experience: 4,
-          notes: 'Promoted to 4 years experience after evaluation.',
-        });
+      const res = await request(app).patch(`/api/candidates/${created.id}`).send({
+        experience: 4,
+        notes: 'Promoted to 4 years experience after evaluation.',
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -242,11 +236,9 @@ describe('Candidate REST API Endpoints', () => {
         stageHistory: [{ toStage: 'Applied', changedAt: new Date() }],
       });
 
-      const res = await request(app)
-        .patch(`/api/candidates/${cand2.id}`)
-        .send({
-          email: 'user1@example.com',
-        });
+      const res = await request(app).patch(`/api/candidates/${cand2.id}`).send({
+        email: 'user1@example.com',
+      });
 
       expect(res.status).toBe(409);
       expect(res.body.success).toBe(false);
@@ -263,13 +255,11 @@ describe('Candidate REST API Endpoints', () => {
         stageHistory: [{ fromStage: null, toStage: 'Applied', changedAt: new Date() }],
       });
 
-      const res = await request(app)
-        .patch(`/api/candidates/${created.id}/stage`)
-        .send({
-          stage: 'Screening',
-          note: 'Passed initial recruiter phone screen.',
-          changedBy: 'Senior Recruiter',
-        });
+      const res = await request(app).patch(`/api/candidates/${created.id}/stage`).send({
+        stage: 'Screening',
+        note: 'Passed initial recruiter phone screen.',
+        changedBy: 'Senior Recruiter',
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -293,11 +283,9 @@ describe('Candidate REST API Endpoints', () => {
         stageHistory: [{ toStage: 'Applied', changedAt: new Date() }],
       });
 
-      const res = await request(app)
-        .patch(`/api/candidates/${created.id}/stage`)
-        .send({
-          stage: 'InvalidNonCanonicalStage',
-        });
+      const res = await request(app).patch(`/api/candidates/${created.id}/stage`).send({
+        stage: 'InvalidNonCanonicalStage',
+      });
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);

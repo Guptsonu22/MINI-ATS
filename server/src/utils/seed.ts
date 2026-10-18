@@ -35,7 +35,8 @@ const seedCandidates: SeedCandidate[] = [
     currentStage: 'Interview',
     applicationDate: new Date('2026-10-10T09:30:00Z'),
     resumeUrl: 'https://example.com/resumes/aarav_sharma.pdf',
-    notes: 'Strong portfolio in full-stack web applications. Cleared technical screening with top marks.',
+    notes:
+      'Strong portfolio in full-stack web applications. Cleared technical screening with top marks.',
     stageHistory: [
       {
         fromStage: null,
@@ -441,7 +442,9 @@ export const seedDatabase = async (): Promise<void> => {
 
     // Insert seeds
     const created = await Candidate.create(seedCandidates);
-    console.log(`✅ Successfully seeded ${created.length} candidates across all 6 canonical stages.`);
+    console.log(
+      `✅ Successfully seeded ${created.length} candidates across all 6 canonical stages.`
+    );
 
     await disconnectDatabase();
   } catch (error) {

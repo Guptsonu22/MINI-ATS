@@ -4,8 +4,7 @@ import { env } from './environment.js';
 let isConnecting = false;
 
 export const connectDatabase = async (uri?: string): Promise<typeof mongoose> => {
-  const targetUri =
-    uri || (env.NODE_ENV === 'test' ? env.MONGODB_TEST_URI : env.MONGODB_URI);
+  const targetUri = uri || (env.NODE_ENV === 'test' ? env.MONGODB_TEST_URI : env.MONGODB_URI);
 
   if (mongoose.connection.readyState === 1) {
     return mongoose;

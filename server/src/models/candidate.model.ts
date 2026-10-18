@@ -167,4 +167,7 @@ candidateSchema.index({ applicationDate: -1 });
 candidateSchema.index({ experience: 1 });
 candidateSchema.index({ name: 'text', email: 'text' });
 
-export const Candidate: Model<ICandidate> = mongoose.model<ICandidate>('Candidate', candidateSchema);
+export const Candidate: Model<ICandidate> = mongoose.model<ICandidate>(
+  'Candidate',
+  candidateSchema
+);

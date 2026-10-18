@@ -8,7 +8,9 @@ beforeAll(async () => {
   const testDbUri = env.MONGODB_TEST_URI;
 
   if (!testDbUri.includes('test')) {
-    throw new Error('Safety guard: Test database URI must contain "test" to prevent modifying real databases.');
+    throw new Error(
+      'Safety guard: Test database URI must contain "test" to prevent modifying real databases.'
+    );
   }
 
   await connectDatabase(testDbUri);

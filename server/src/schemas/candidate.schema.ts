@@ -4,7 +4,12 @@ import { CANONICAL_STAGES } from '../constants/stages.js';
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
 export const candidateIdParamSchema = z.object({
-  id: z.string().regex(objectIdRegex, 'Invalid candidate ID format. Must be a 24-character hexadecimal string.'),
+  id: z
+    .string()
+    .regex(
+      objectIdRegex,
+      'Invalid candidate ID format. Must be a 24-character hexadecimal string.'
+    ),
 });
 
 export const createCandidateSchema = z.object({
@@ -35,7 +40,12 @@ export const createCandidateSchema = z.object({
   skills: z
     .union([
       z.array(z.string().trim().min(1, 'Skill tag cannot be empty')),
-      z.string().transform(str => str.split(',').map(s => s.trim()).filter(Boolean)),
+      z.string().transform(str =>
+        str
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+      ),
     ])
     .refine(arr => arr.length > 0, 'At least one skill is required'),
   source: z
@@ -54,17 +64,8 @@ export const createCandidateSchema = z.object({
     .string()
     .datetime({ message: 'Application date must be a valid ISO datetime' })
     .optional(),
-  resumeUrl: z
-    .string()
-    .trim()
-    .url('Resume URL must be a valid URL')
-    .or(z.literal(''))
-    .optional(),
-  notes: z
-    .string()
-    .trim()
-    .max(2000, 'Notes cannot exceed 2000 characters')
-    .optional(),
+  resumeUrl: z.string().trim().url('Resume URL must be a valid URL').or(z.literal('')).optional(),
+  notes: z.string().trim().max(2000, 'Notes cannot exceed 2000 characters').optional(),
 });
 
 export const updateCandidateSchema = createCandidateSchema
@@ -79,7 +80,11 @@ export const updateCandidateStageSchema = z.object({
       message: `Stage must be one of: ${CANONICAL_STAGES.join(', ')}`,
     }),
   }),
-  note: z.string().trim().max(1000, 'Stage transition note cannot exceed 1000 characters').optional(),
+  note: z
+    .string()
+    .trim()
+    .max(1000, 'Stage transition note cannot exceed 1000 characters')
+    .optional(),
   changedBy: z.string().trim().max(100, 'Author name cannot exceed 100 characters').optional(),
 });
 

@@ -7,11 +7,7 @@ import {
   updateCandidateStageHandler,
   deleteCandidateHandler,
 } from '../controllers/candidate.controller.js';
-import {
-  validateBody,
-  validateQuery,
-  validateParams,
-} from '../middleware/validate.js';
+import { validateBody, validateQuery, validateParams } from '../middleware/validate.js';
 import {
   createCandidateSchema,
   updateCandidateSchema,
@@ -22,23 +18,11 @@ import {
 
 export const candidateRouter = Router();
 
-candidateRouter.post(
-  '/',
-  validateBody(createCandidateSchema),
-  createCandidateHandler
-);
+candidateRouter.post('/', validateBody(createCandidateSchema), createCandidateHandler);
 
-candidateRouter.get(
-  '/',
-  validateQuery(candidateQuerySchema),
-  getCandidatesHandler
-);
+candidateRouter.get('/', validateQuery(candidateQuerySchema), getCandidatesHandler);
 
-candidateRouter.get(
-  '/:id',
-  validateParams(candidateIdParamSchema),
-  getCandidateByIdHandler
-);
+candidateRouter.get('/:id', validateParams(candidateIdParamSchema), getCandidateByIdHandler);
 
 candidateRouter.patch(
   '/:id',
@@ -54,8 +38,4 @@ candidateRouter.patch(
   updateCandidateStageHandler
 );
 
-candidateRouter.delete(
-  '/:id',
-  validateParams(candidateIdParamSchema),
-  deleteCandidateHandler
-);
+candidateRouter.delete('/:id', validateParams(candidateIdParamSchema), deleteCandidateHandler);
