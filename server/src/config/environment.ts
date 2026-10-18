@@ -7,6 +7,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   MONGODB_URI: z.string().default('mongodb://127.0.0.1:27017/mini_ats'),
+  MONGODB_TEST_URI: z.string().default('mongodb://127.0.0.1:27017/mini_ats_test_runner'),
   CLIENT_ORIGIN: z.string().default('http://localhost:5173'),
 });
 

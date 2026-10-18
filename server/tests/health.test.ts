@@ -5,7 +5,7 @@ import { createApp } from '../src/app.js';
 describe('Health Check API', () => {
   const app = createApp();
 
-  it('GET /api/health returns 200 OK with health status metadata', async () => {
+  it('GET /api/health returns 200 OK with server & database status metadata', async () => {
     const response = await request(app).get('/api/health');
 
     expect(response.status).toBe(200);
@@ -16,6 +16,8 @@ describe('Health Check API', () => {
       service: 'mini-ats-server',
       version: '1.0.0',
     });
+    expect(response.body.data).toHaveProperty('database');
+    expect(response.body.data.database).toHaveProperty('state', 'connected');
     expect(response.body.data).toHaveProperty('uptimeSeconds');
     expect(response.body.data).toHaveProperty('timestamp');
   });

@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import { env } from '../config/environment.js';
+import { getDatabaseStatus } from '../config/database.js';
 
 export const getHealth = (_req: Request, res: Response): void => {
+  const dbStatus = getDatabaseStatus();
+
   res.status(200).json({
     success: true,
     message: 'Mini ATS API is running smoothly',
@@ -13,6 +16,7 @@ export const getHealth = (_req: Request, res: Response): void => {
       timestamp: new Date().toISOString(),
       environment: env.NODE_ENV,
       nodeVersion: process.version,
+      database: dbStatus,
     },
   });
 };
