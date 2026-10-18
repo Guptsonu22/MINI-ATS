@@ -52,6 +52,44 @@ const sampleCandidates: Candidate[] = [
   },
 ];
 
+const sampleAnalytics = {
+  totalCandidates: 2,
+  activeCandidates: 2,
+  hiredCandidates: 0,
+  rejectedCandidates: 0,
+  inInterview: 1,
+  offersExtended: 1,
+  screeningCount: 0,
+  appliedCount: 0,
+  averageExperience: 3.5,
+  hireRate: 0,
+  stageDistribution: {
+    Applied: 0,
+    Screening: 0,
+    Interview: 1,
+    Offer: 1,
+    Hired: 0,
+    Rejected: 0,
+  },
+  stageBreakdown: [
+    { stage: 'Applied' as const, count: 0, percentage: 0 },
+    { stage: 'Screening' as const, count: 0, percentage: 0 },
+    { stage: 'Interview' as const, count: 1, percentage: 50 },
+    { stage: 'Offer' as const, count: 1, percentage: 50 },
+    { stage: 'Hired' as const, count: 0, percentage: 0 },
+    { stage: 'Rejected' as const, count: 0, percentage: 0 },
+  ],
+  sourceBreakdown: [
+    { source: 'LinkedIn', count: 1, percentage: 50 },
+    { source: 'Referral', count: 1, percentage: 50 },
+  ],
+  roleBreakdown: [
+    { role: 'Full Stack Developer', count: 1, percentage: 50 },
+    { role: 'Frontend Engineer', count: 1, percentage: 50 },
+  ],
+  recentCandidates: sampleCandidates,
+};
+
 describe('Mini ATS Frontend Application Layout & Navigation', () => {
   beforeEach(() => {
     window.history.pushState({}, '', '/');
@@ -72,6 +110,16 @@ describe('Mini ATS Frontend Application Layout & Navigation', () => {
                 environment: 'test',
                 nodeVersion: 'v24.21.0',
               },
+            }),
+          };
+        }
+
+        if (url.includes('/api/analytics')) {
+          return {
+            ok: true,
+            json: async () => ({
+              success: true,
+              data: sampleAnalytics,
             }),
           };
         }

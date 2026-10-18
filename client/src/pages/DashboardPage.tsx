@@ -202,27 +202,27 @@ export const DashboardPage: React.FC = () => {
               badgeColor="blue"
             />
             <MetricCard
-              title="Active Pipeline"
+              title="Active Candidates"
               value={analytics.activeCandidates}
               icon={UserCheck}
               subtext="Excludes Hired and Rejected"
-              badgeText="In Evaluation"
+              badgeText="In Pipeline"
               badgeColor="emerald"
             />
             <MetricCard
-              title="In Interview"
+              title="Interviews Scheduled"
               value={analytics.inInterview}
               icon={Calendar}
               subtext="Technical & behavioral rounds"
-              badgeText="Active Round"
+              badgeText="In Progress"
               badgeColor="amber"
             />
             <MetricCard
-              title="Hired"
-              value={analytics.hiredCandidates}
+              title="Offers & Hires"
+              value={analytics.offersExtended + analytics.hiredCandidates}
               icon={Award}
-              subtext={`${analytics.hireRate}% conversion hire rate`}
-              badgeText="Converted"
+              subtext={`${analytics.hiredCandidates} hired (${analytics.hireRate}%), ${analytics.offersExtended} offers`}
+              badgeText="Milestones"
               badgeColor="emerald"
             />
           </div>
