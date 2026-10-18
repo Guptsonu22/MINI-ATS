@@ -161,7 +161,6 @@ const candidateSchema = new Schema<ICandidate>(
 );
 
 // Indexes for fast lookup, filtering, and sorting
-candidateSchema.index({ email: 1 }, { unique: true });
 candidateSchema.index({ currentStage: 1 });
 candidateSchema.index({ appliedRole: 1 });
 candidateSchema.index({ applicationDate: -1 });

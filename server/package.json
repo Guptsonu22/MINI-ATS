@@ -8,6 +8,7 @@
     "build": "rimraf dist && tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "seed": "tsx src/utils/seed.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
