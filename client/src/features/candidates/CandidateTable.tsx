@@ -8,12 +8,16 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
   Mail,
   Phone,
 } from 'lucide-react';
 import { Candidate } from '../../types';
 import { StageBadge } from './StageBadge';
 import { EmptyState } from '../../components/ui/EmptyState';
+
+export type CandidateSortField = 'applicationDate' | 'name' | 'experience';
 
 interface CandidateTableProps {
   candidates: Candidate[];
@@ -22,8 +26,12 @@ interface CandidateTableProps {
   page: number;
   totalPages: number;
   totalCandidates: number;
+  limit?: number;
   onPageChange: (newPage: number) => void;
   onResetFilters?: () => void;
+  sortBy?: CandidateSortField;
+  sortOrder?: 'asc' | 'desc';
+  onSortChange?: (field: CandidateSortField) => void;
 }
 
 export const CandidateTable: React.FC<CandidateTableProps> = ({
@@ -33,10 +41,25 @@ export const CandidateTable: React.FC<CandidateTableProps> = ({
   page,
   totalPages,
   totalCandidates,
+  limit = 10,
   onPageChange,
   onResetFilters,
+  sortBy,
+  sortOrder,
+  onSortChange,
 }) => {
   const navigate = useNavigate();
+
+  const renderSortIcon = (field: CandidateSortField) => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="h-3 w-3 text-slate-400 group-hover/col:text-slate-600" />;
+    }
+    return sortOrder === 'asc' ? (
+      <ArrowUp className="h-3 w-3 text-brand-600" />
+    ) : (
+      <ArrowDown className="h-3 w-3 text-brand-600" />
+    );
+  };
 
   if (candidates.length === 0) {
     return (
@@ -55,20 +78,39 @@ export const CandidateTable: React.FC<CandidateTableProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50/75 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              <th className="py-3.5 px-4 sm:px-6">Candidate</th>
+            <tr className="border-b border-slate-200 bg-slate-50/75 text-xs font-semibold text-slate-500 uppercase tracking-wider select-none">
+              <th className="py-3.5 px-4 sm:px-6">
+                <button
+                  type="button"
+                  onClick={() => onSortChange?.('name')}
+                  className="inline-flex items-center gap-1 font-semibold uppercase hover:text-slate-900 group/col focus:outline-none"
+                >
+                  <span>Candidate</span>
+                  {renderSortIcon('name')}
+                </button>
+              </th>
               <th className="py-3.5 px-4">Applied Role</th>
               <th className="py-3.5 px-4">
-                <span className="inline-flex items-center gap-1 cursor-pointer hover:text-slate-700">
-                  Experience <ArrowUpDown className="h-3 w-3" />
-                </span>
+                <button
+                  type="button"
+                  onClick={() => onSortChange?.('experience')}
+                  className="inline-flex items-center gap-1 font-semibold uppercase hover:text-slate-900 group/col focus:outline-none"
+                >
+                  <span>Experience</span>
+                  {renderSortIcon('experience')}
+                </button>
               </th>
               <th className="py-3.5 px-4">Current Stage</th>
               <th className="py-3.5 px-4">Source</th>
               <th className="py-3.5 px-4">
-                <span className="inline-flex items-center gap-1 cursor-pointer hover:text-slate-700">
-                  Applied Date <ArrowUpDown className="h-3 w-3" />
-                </span>
+                <button
+                  type="button"
+                  onClick={() => onSortChange?.('applicationDate')}
+                  className="inline-flex items-center gap-1 font-semibold uppercase hover:text-slate-900 group/col focus:outline-none"
+                >
+                  <span>Applied Date</span>
+                  {renderSortIcon('applicationDate')}
+                </button>
               </th>
               <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
             </tr>
@@ -209,11 +251,11 @@ export const CandidateTable: React.FC<CandidateTableProps> = ({
         <div>
           Showing{' '}
           <span className="font-semibold text-slate-900">
-            {totalCandidates === 0 ? 0 : (page - 1) * 10 + 1}
+            {totalCandidates === 0 ? 0 : (page - 1) * limit + 1}
           </span>{' '}
           to{' '}
           <span className="font-semibold text-slate-900">
-            {Math.min(page * 10, totalCandidates)}
+            {Math.min(page * limit, totalCandidates)}
           </span>{' '}
           of <span className="font-semibold text-slate-900">{totalCandidates}</span> candidates
         </div>

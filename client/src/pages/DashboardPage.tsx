@@ -1,20 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserCheck, Calendar, Award, Plus, ArrowRight, Sparkles } from 'lucide-react';
+import {
+  Users,
+  UserCheck,
+  Calendar,
+  Award,
+  Plus,
+  ArrowRight,
+  Database,
+  AlertTriangle,
+  RotateCcw,
+} from 'lucide-react';
 import { MetricCard } from '../features/dashboard/MetricCard';
 import { PipelineSummary } from '../features/dashboard/PipelineSummary';
 import { RecentActivity } from '../features/dashboard/RecentActivity';
 import { Button } from '../components/ui/Button';
 import { CandidateFormModal } from '../features/candidates/CandidateFormModal';
-import { INITIAL_MOCK_CANDIDATES } from '../data/mockCandidates';
+import { CardSkeleton } from '../components/ui/Skeleton';
 import { Candidate, CanonicalStage } from '../types';
+import { candidatesApi } from '../api/candidates.api';
+import { useToast } from '../context/ToastContext';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const [candidates, setCandidates] = useState<Candidate[]>(INITIAL_MOCK_CANDIDATES);
+  const { addToast } = useToast();
+
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Compute metrics
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await candidatesApi.getCandidates({ limit: 100 });
+      setCandidates(response.candidates);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Unable to connect to the ATS API server. Please check your network connection.';
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Compute live metrics from real candidate records
   const totalCandidates = candidates.length;
   const activeCandidates = candidates.filter(
     c => c.currentStage !== 'Hired' && c.currentStage !== 'Rejected'
@@ -33,33 +70,29 @@ export const DashboardPage: React.FC = () => {
     Rejected: candidates.filter(c => c.currentStage === 'Rejected').length,
   };
 
-  const handleAddCandidate = (newCand: Partial<Candidate>) => {
-    const created: Candidate = {
-      id: `cand-${Date.now()}`,
-      name: newCand.name || 'New Candidate',
-      email: newCand.email || '',
-      phone: newCand.phone || '',
-      appliedRole: newCand.appliedRole || 'Full Stack Developer',
-      experience: newCand.experience || 0,
-      source: newCand.source || 'Direct',
-      skills: newCand.skills || [],
-      currentStage: newCand.currentStage || 'Applied',
-      applicationDate: new Date().toISOString(),
-      resumeUrl: newCand.resumeUrl,
-      notes: newCand.notes,
-      stageHistory: [
-        {
-          fromStage: null,
-          toStage: newCand.currentStage || 'Applied',
-          changedAt: new Date().toISOString(),
-          note: 'Candidate created via Recruiter Dashboard.',
-          changedBy: 'Recruiter',
-        },
-      ],
-    };
+  const handleAddCandidate = async (newCand: Partial<Candidate>) => {
+    try {
+      await candidatesApi.createCandidate({
+        name: newCand.name!,
+        email: newCand.email!,
+        phone: newCand.phone!,
+        appliedRole: newCand.appliedRole!,
+        experience: newCand.experience!,
+        source: newCand.source!,
+        skills: newCand.skills || [],
+        currentStage: newCand.currentStage || 'Applied',
+        resumeUrl: newCand.resumeUrl,
+        notes: newCand.notes,
+      });
 
-    setCandidates([created, ...candidates]);
-    setIsAddModalOpen(false);
+      addToast(`Candidate ${newCand.name} registered successfully`, 'success');
+      setIsAddModalOpen(false);
+      await fetchDashboardData();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to register candidate';
+      addToast(msg, 'error');
+      throw err;
+    }
   };
 
   return (
@@ -95,60 +128,91 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Presentation Mode Notice Banner */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4 flex items-start gap-3 text-xs text-blue-900">
-        <Sparkles className="h-4 w-4 text-brand-600 mt-0.5 flex-shrink-0" />
+      {/* Backend Status Banner */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 flex items-start gap-3 text-xs text-emerald-900">
+        <Database className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
         <div className="space-y-0.5">
-          <p className="font-semibold">Phase 2 Frontend Presentation Mode</p>
-          <p className="text-blue-700 leading-relaxed">
-            Displaying interactive presentation mock candidates across all 6 canonical stages.
-            Navigation, search, modal dialogs, and filters are fully functional in the UI. Real
-            backend persistence will be connected in Phase 3.
+          <p className="font-semibold">Connected to Mini ATS Database</p>
+          <p className="text-emerald-700 leading-relaxed">
+            Live applicant pipeline data synchronized with MongoDB. All metric counts, stage distributions,
+            and recent activity reflect real candidate database records.
           </p>
         </div>
       </div>
 
+      {/* Error Banner */}
+      {error && !isLoading && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-8 text-center space-y-3">
+          <div className="flex justify-center text-rose-500">
+            <AlertTriangle className="h-8 w-8" />
+          </div>
+          <h3 className="text-base font-semibold text-rose-900">Unable to Fetch Dashboard Data</h3>
+          <p className="text-xs sm:text-sm text-rose-700 max-w-md mx-auto">{error}</p>
+          <div className="pt-2">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={fetchDashboardData}
+              leftIcon={<RotateCcw className="h-4 w-4" />}
+            >
+              Retry Connection
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <MetricCard
-          title="Total Candidates"
-          value={totalCandidates}
-          icon={Users}
-          subtext="Total applicants in system"
-          badgeText="+12% this month"
-          badgeColor="blue"
-        />
-        <MetricCard
-          title="Active Candidates"
-          value={activeCandidates}
-          icon={UserCheck}
-          subtext="In active screening or evaluation"
-          badgeText="Active"
-          badgeColor="emerald"
-        />
-        <MetricCard
-          title="Interviews Scheduled"
-          value={inInterview}
-          icon={Calendar}
-          subtext="Technical & behavioral rounds"
-          badgeText="In Progress"
-          badgeColor="amber"
-        />
-        <MetricCard
-          title="Offers & Hires"
-          value={offersAndHires}
-          icon={Award}
-          subtext="Successful conversion milestones"
-          badgeText="Success"
-          badgeColor="emerald"
-        />
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <MetricCard
+            title="Total Candidates"
+            value={totalCandidates}
+            icon={Users}
+            subtext="Total applicants in database"
+            badgeText="Live"
+            badgeColor="blue"
+          />
+          <MetricCard
+            title="Active Candidates"
+            value={activeCandidates}
+            icon={UserCheck}
+            subtext="In active screening or evaluation"
+            badgeText="Active"
+            badgeColor="emerald"
+          />
+          <MetricCard
+            title="Interviews Scheduled"
+            value={inInterview}
+            icon={Calendar}
+            subtext="Technical & behavioral rounds"
+            badgeText="In Progress"
+            badgeColor="amber"
+          />
+          <MetricCard
+            title="Offers & Hires"
+            value={offersAndHires}
+            icon={Award}
+            subtext="Successful conversion milestones"
+            badgeText="Milestones"
+            badgeColor="emerald"
+          />
+        </div>
+      )}
 
       {/* Pipeline Funnel Distribution */}
-      <PipelineSummary stageCounts={stageCounts} totalCandidates={totalCandidates} />
+      {!isLoading && !error && (
+        <PipelineSummary stageCounts={stageCounts} totalCandidates={totalCandidates} />
+      )}
 
       {/* Recent Activity Feed */}
-      <RecentActivity candidates={candidates} />
+      {!isLoading && !error && <RecentActivity candidates={candidates} />}
 
       {/* Add Candidate Modal */}
       <CandidateFormModal

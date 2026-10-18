@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -11,8 +11,9 @@ import {
   Trash2,
   GitPullRequest,
   Sparkles,
+  AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
-import { INITIAL_MOCK_CANDIDATES } from '../data/mockCandidates';
 import { Candidate, CanonicalStage } from '../types';
 import { StageBadge } from '../features/candidates/StageBadge';
 import { StageHistoryTimeline } from '../features/candidates/StageHistoryTimeline';
@@ -22,32 +23,195 @@ import { Select } from '../components/ui/Select';
 import { Textarea } from '../components/ui/Textarea';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { CandidateFormModal } from '../features/candidates/CandidateFormModal';
+import { Skeleton } from '../components/ui/Skeleton';
+import { candidatesApi } from '../api/candidates.api';
+import { useToast } from '../context/ToastContext';
 
 export const CandidateDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
-  // Find candidate by ID or fallback to first candidate for demo
-  const [candidate, setCandidate] = useState<Candidate | undefined>(() => {
-    return INITIAL_MOCK_CANDIDATES.find(c => c.id === id) || INITIAL_MOCK_CANDIDATES[0];
-  });
+  const [candidate, setCandidate] = useState<Candidate | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Modals state
   const [isChangeStageOpen, setIsChangeStageOpen] = useState(false);
-  const [newStage, setNewStage] = useState<CanonicalStage>(candidate?.currentStage || 'Applied');
+  const [newStage, setNewStage] = useState<CanonicalStage>('Applied');
   const [stageNote, setStageNote] = useState('');
+  const [isSubmittingStage, setIsSubmittingStage] = useState(false);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  if (!candidate) {
+  const fetchCandidate = useCallback(async () => {
+    if (!id) return;
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await candidatesApi.getCandidateById(id);
+      setCandidate(data);
+      setNewStage(data.currentStage);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Failed to retrieve candidate information. The record may not exist or the server could not be reached.';
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchCandidate();
+  }, [fetchCandidate]);
+
+  const handleStageChangeSubmit = async () => {
+    if (!candidate || !id) return;
+    if (newStage === candidate.currentStage) {
+      setIsChangeStageOpen(false);
+      return;
+    }
+
+    setIsSubmittingStage(true);
+    try {
+      const updated = await candidatesApi.updateCandidateStage(id, {
+        stage: newStage,
+        note: stageNote.trim() || undefined,
+        changedBy: 'Recruiter',
+      });
+
+      setCandidate(updated);
+      setIsChangeStageOpen(false);
+      setStageNote('');
+      addToast(`Candidate moved to ${newStage} stage`, 'success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update hiring stage';
+      addToast(msg, 'error');
+    } finally {
+      setIsSubmittingStage(false);
+    }
+  };
+
+  const handleEditCandidate = async (updatedFields: Partial<Candidate>) => {
+    if (!candidate || !id) return;
+
+    try {
+      const updated = await candidatesApi.updateCandidate(id, {
+        name: updatedFields.name,
+        email: updatedFields.email,
+        phone: updatedFields.phone,
+        appliedRole: updatedFields.appliedRole,
+        experience: updatedFields.experience,
+        source: updatedFields.source,
+        skills: updatedFields.skills,
+        currentStage: updatedFields.currentStage,
+        resumeUrl: updatedFields.resumeUrl,
+        notes: updatedFields.notes,
+      });
+
+      setCandidate(updated);
+      setIsEditModalOpen(false);
+      addToast('Candidate details updated successfully', 'success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update candidate details';
+      addToast(msg, 'error');
+      throw err;
+    }
+  };
+
+  const handleDeleteCandidate = async () => {
+    if (!candidate || !id) return;
+
+    setIsDeleting(true);
+    try {
+      await candidatesApi.deleteCandidate(id);
+      addToast(`Candidate ${candidate.name} has been deleted`, 'success');
+      setIsDeleteDialogOpen(false);
+      navigate('/candidates');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete candidate';
+      addToast(msg, 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const stageOptions = [
+    { label: 'Applied', value: 'Applied' },
+    { label: 'Screening', value: 'Screening' },
+    { label: 'Interview', value: 'Interview' },
+    { label: 'Offer', value: 'Offer' },
+    { label: 'Hired', value: 'Hired' },
+    { label: 'Rejected', value: 'Rejected' },
+  ];
+
+  // Loading skeleton
+  if (isLoading) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
-        <h2 className="text-lg font-semibold text-slate-800">Candidate Not Found</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          The candidate record you are looking for does not exist.
-        </p>
-        <div className="mt-4">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-6 w-40" />
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-24" />
+            <Skeleton className="h-9 w-28" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-16 w-16 rounded-2xl flex-shrink-0" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="space-y-6 lg:col-span-1">
+            <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          </div>
+          <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-6 space-y-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error || !candidate) {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-white p-12 text-center space-y-4 shadow-sm">
+        <div className="flex justify-center text-rose-500">
+          <AlertTriangle className="h-10 w-10" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">Candidate Record Not Found</h2>
+          <p className="mt-1 text-sm text-slate-500 max-w-md mx-auto">
+            {error || 'The requested applicant record could not be found or retrieved from the database.'}
+          </p>
+        </div>
+        <div className="flex justify-center gap-3 pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchCandidate}
+            leftIcon={<RotateCcw className="h-4 w-4" />}
+          >
+            Retry Request
+          </Button>
           <Button variant="primary" size="sm" onClick={() => navigate('/candidates')}>
-            Back to Candidates
+            Back to Candidate Directory
           </Button>
         </div>
       </div>
@@ -67,54 +231,9 @@ export const CandidateDetailPage: React.FC = () => {
     year: 'numeric',
   });
 
-  const handleStageChangeSubmit = () => {
-    if (newStage === candidate.currentStage) {
-      setIsChangeStageOpen(false);
-      return;
-    }
-
-    const updated: Candidate = {
-      ...candidate,
-      currentStage: newStage,
-      stageHistory: [
-        ...candidate.stageHistory,
-        {
-          fromStage: candidate.currentStage,
-          toStage: newStage,
-          changedAt: new Date().toISOString(),
-          note: stageNote || `Stage promoted to ${newStage}.`,
-          changedBy: 'Recruiter',
-        },
-      ],
-    };
-
-    setCandidate(updated);
-    setIsChangeStageOpen(false);
-    setStageNote('');
-  };
-
-  const handleEditCandidate = (updatedFields: Partial<Candidate>) => {
-    setCandidate(prev => (prev ? { ...prev, ...updatedFields } : undefined));
-    setIsEditModalOpen(false);
-  };
-
-  const handleDeleteCandidate = () => {
-    setIsDeleteDialogOpen(false);
-    navigate('/candidates');
-  };
-
-  const stageOptions = [
-    { label: 'Applied', value: 'Applied' },
-    { label: 'Screening', value: 'Screening' },
-    { label: 'Interview', value: 'Interview' },
-    { label: 'Offer', value: 'Offer' },
-    { label: 'Hired', value: 'Hired' },
-    { label: 'Rejected', value: 'Rejected' },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Back button */}
+      {/* Back button & Action Toolbar */}
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -299,10 +418,21 @@ export const CandidateDetailPage: React.FC = () => {
         maxWidth="md"
         footer={
           <>
-            <Button variant="outline" size="sm" onClick={() => setIsChangeStageOpen(false)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsChangeStageOpen(false)}
+              disabled={isSubmittingStage}
+            >
               Cancel
             </Button>
-            <Button variant="primary" size="sm" onClick={handleStageChangeSubmit}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleStageChangeSubmit}
+              isLoading={isSubmittingStage}
+              disabled={isSubmittingStage}
+            >
               Confirm Transition
             </Button>
           </>
@@ -314,6 +444,7 @@ export const CandidateDetailPage: React.FC = () => {
             options={stageOptions}
             value={newStage}
             onChange={e => setNewStage(e.target.value as CanonicalStage)}
+            disabled={isSubmittingStage}
           />
 
           <Textarea
@@ -322,6 +453,7 @@ export const CandidateDetailPage: React.FC = () => {
             rows={3}
             value={stageNote}
             onChange={e => setStageNote(e.target.value)}
+            disabled={isSubmittingStage}
           />
         </div>
       </Modal>
@@ -343,6 +475,7 @@ export const CandidateDetailPage: React.FC = () => {
         message={`Are you sure you want to permanently delete ${candidate.name}? This candidate will be removed from all pipeline stages.`}
         confirmText="Delete Candidate"
         variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );

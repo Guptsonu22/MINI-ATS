@@ -1,67 +1,106 @@
-import React, { useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
-import { Candidate } from '../types';
-import { INITIAL_MOCK_CANDIDATES } from '../data/mockCandidates';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, AlertTriangle, RotateCcw } from 'lucide-react';
+import { Candidate, PaginationData } from '../types';
 import { CandidateFilters } from '../features/candidates/CandidateFilters';
-import { CandidateTable } from '../features/candidates/CandidateTable';
+import { CandidateTable, CandidateSortField } from '../features/candidates/CandidateTable';
 import { CandidateFormModal } from '../features/candidates/CandidateFormModal';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Button } from '../components/ui/Button';
+import { TableSkeleton } from '../components/ui/Skeleton';
+import { candidatesApi } from '../api/candidates.api';
+import { useDebounce } from '../hooks/useDebounce';
+import { useToast } from '../context/ToastContext';
 
 export const CandidatesPage: React.FC = () => {
-  const [candidates, setCandidates] = useState<Candidate[]>(INITIAL_MOCK_CANDIDATES);
+  const { addToast } = useToast();
 
-  // Filters State
+  // Data State
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 10,
+    totalCandidates: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+
+  // Loading & Error States
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filters & Query State
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [selectedStage, setSelectedStage] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedExp, setSelectedExp] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [sortBy, setSortBy] = useState<CandidateSortField>('applicationDate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const itemsPerPage = 10;
 
   // Modal State
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
   const [deletingCandidate, setDeletingCandidate] = useState<Candidate | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filter candidates logic
-  const filteredCandidates = useMemo(() => {
-    return candidates.filter(cand => {
-      // Search by name or email
-      if (search.trim()) {
-        const query = search.trim().toLowerCase();
-        const matchesName = cand.name.toLowerCase().includes(query);
-        const matchesEmail = cand.email.toLowerCase().includes(query);
-        if (!matchesName && !matchesEmail) return false;
+  // Fetch candidates from real API
+  const fetchCandidates = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      let minExp: number | undefined;
+      let maxExp: number | undefined;
+      if (selectedExp === '0-2') {
+        minExp = 0;
+        maxExp = 2;
+      } else if (selectedExp === '3-5') {
+        minExp = 3;
+        maxExp = 5;
+      } else if (selectedExp === '5+') {
+        minExp = 5;
       }
 
-      // Filter by stage
-      if (selectedStage && cand.currentStage !== selectedStage) {
-        return false;
-      }
+      const response = await candidatesApi.getCandidates({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedSearch.trim() || undefined,
+        stage: selectedStage || undefined,
+        role: selectedRole || undefined,
+        minExp,
+        maxExp,
+        sortBy,
+        sortOrder,
+      });
 
-      // Filter by role
-      if (selectedRole && cand.appliedRole !== selectedRole) {
-        return false;
-      }
+      setCandidates(response.candidates);
+      setPagination(response.pagination);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Unable to connect to the ATS API server. Please check your network connection.';
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    currentPage,
+    itemsPerPage,
+    debouncedSearch,
+    selectedStage,
+    selectedRole,
+    selectedExp,
+    sortBy,
+    sortOrder,
+  ]);
 
-      // Filter by experience
-      if (selectedExp) {
-        if (selectedExp === '0-2' && (cand.experience < 0 || cand.experience > 2)) return false;
-        if (selectedExp === '3-5' && (cand.experience < 3 || cand.experience > 5)) return false;
-        if (selectedExp === '5+' && cand.experience < 5) return false;
-      }
-
-      return true;
-    });
-  }, [candidates, search, selectedStage, selectedRole, selectedExp]);
-
-  // Pagination calculation
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
-  const paginatedCandidates = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredCandidates.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredCandidates, currentPage]);
+  useEffect(() => {
+    fetchCandidates();
+  }, [fetchCandidates]);
 
   const handleClearFilters = () => {
     setSearch('');
@@ -73,70 +112,74 @@ export const CandidatesPage: React.FC = () => {
 
   const hasActiveFilters = Boolean(search || selectedStage || selectedRole || selectedExp);
 
-  // Create or Update Candidate
-  const handleSaveCandidate = (candData: Partial<Candidate>) => {
-    if (editingCandidate) {
-      // Update
-      setCandidates(prev =>
-        prev.map(c =>
-          c.id === editingCandidate.id
-            ? {
-                ...c,
-                ...candData,
-                stageHistory:
-                  candData.currentStage && candData.currentStage !== c.currentStage
-                    ? [
-                        ...c.stageHistory,
-                        {
-                          fromStage: c.currentStage,
-                          toStage: candData.currentStage,
-                          changedAt: new Date().toISOString(),
-                          note: 'Stage updated in edit form.',
-                          changedBy: 'Recruiter',
-                        },
-                      ]
-                    : c.stageHistory,
-              }
-            : c
-        )
-      );
+  const handleSortChange = (field: CandidateSortField) => {
+    if (sortBy === field) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
-      // Create
-      const newCand: Candidate = {
-        id: `cand-${Date.now()}`,
-        name: candData.name || 'Anonymous',
-        email: candData.email || '',
-        phone: candData.phone || '',
-        appliedRole: candData.appliedRole || 'Full Stack Developer',
-        experience: candData.experience || 0,
-        source: candData.source || 'Direct',
-        skills: candData.skills || [],
-        currentStage: candData.currentStage || 'Applied',
-        applicationDate: new Date().toISOString(),
-        resumeUrl: candData.resumeUrl,
-        notes: candData.notes,
-        stageHistory: [
-          {
-            fromStage: null,
-            toStage: candData.currentStage || 'Applied',
-            changedAt: new Date().toISOString(),
-            note: 'Candidate record created.',
-            changedBy: 'Recruiter',
-          },
-        ],
-      };
-      setCandidates(prev => [newCand, ...prev]);
+      setSortBy(field);
+      setSortOrder('desc');
     }
+    setCurrentPage(1);
+  };
 
-    setIsFormModalOpen(false);
-    setEditingCandidate(null);
+  // Create or Update Candidate
+  const handleSaveCandidate = async (candData: Partial<Candidate>) => {
+    try {
+      if (editingCandidate) {
+        await candidatesApi.updateCandidate(editingCandidate.id, {
+          name: candData.name,
+          email: candData.email,
+          phone: candData.phone,
+          appliedRole: candData.appliedRole,
+          experience: candData.experience,
+          source: candData.source,
+          skills: candData.skills,
+          currentStage: candData.currentStage,
+          resumeUrl: candData.resumeUrl,
+          notes: candData.notes,
+        });
+        addToast(`Updated ${candData.name || 'candidate'} profile successfully`, 'success');
+      } else {
+        await candidatesApi.createCandidate({
+          name: candData.name!,
+          email: candData.email!,
+          phone: candData.phone!,
+          appliedRole: candData.appliedRole!,
+          experience: candData.experience!,
+          source: candData.source!,
+          skills: candData.skills || [],
+          currentStage: candData.currentStage || 'Applied',
+          resumeUrl: candData.resumeUrl,
+          notes: candData.notes,
+        });
+        addToast(`Candidate ${candData.name} registered successfully`, 'success');
+      }
+
+      setIsFormModalOpen(false);
+      setEditingCandidate(null);
+      await fetchCandidates();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save candidate';
+      addToast(msg, 'error');
+      throw err; // Let CandidateFormModal display inline server error
+    }
   };
 
   // Delete candidate confirmation
-  const handleConfirmDelete = () => {
-    if (deletingCandidate) {
-      setCandidates(prev => prev.filter(c => c.id !== deletingCandidate.id));
+  const handleConfirmDelete = async () => {
+    if (!deletingCandidate) return;
+
+    setIsDeleting(true);
+    try {
+      await candidatesApi.deleteCandidate(deletingCandidate.id);
+      addToast(`Candidate ${deletingCandidate.name} deleted successfully`, 'success');
       setDeletingCandidate(null);
+      await fetchCandidates();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete candidate';
+      addToast(msg, 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -150,7 +193,7 @@ export const CandidatesPage: React.FC = () => {
               Candidate Directory
             </h1>
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200">
-              {filteredCandidates.length} Total
+              {pagination.totalCandidates} Total
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -197,20 +240,50 @@ export const CandidatesPage: React.FC = () => {
         hasActiveFilters={hasActiveFilters}
       />
 
+      {/* Server Error State */}
+      {error && !isLoading && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-8 text-center space-y-3">
+          <div className="flex justify-center text-rose-500">
+            <AlertTriangle className="h-8 w-8" />
+          </div>
+          <h3 className="text-base font-semibold text-rose-900">Unable to Load Candidates</h3>
+          <p className="text-xs sm:text-sm text-rose-700 max-w-md mx-auto">{error}</p>
+          <div className="pt-2">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={fetchCandidates}
+              leftIcon={<RotateCcw className="h-4 w-4" />}
+            >
+              Retry Connection
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Skeleton */}
+      {isLoading && <TableSkeleton rows={itemsPerPage} />}
+
       {/* Candidates Data Table */}
-      <CandidateTable
-        candidates={paginatedCandidates}
-        onEdit={cand => {
-          setEditingCandidate(cand);
-          setIsFormModalOpen(true);
-        }}
-        onDelete={cand => setDeletingCandidate(cand)}
-        page={currentPage}
-        totalPages={totalPages}
-        totalCandidates={filteredCandidates.length}
-        onPageChange={page => setCurrentPage(page)}
-        onResetFilters={handleClearFilters}
-      />
+      {!isLoading && !error && (
+        <CandidateTable
+          candidates={candidates}
+          onEdit={cand => {
+            setEditingCandidate(cand);
+            setIsFormModalOpen(true);
+          }}
+          onDelete={cand => setDeletingCandidate(cand)}
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          totalCandidates={pagination.totalCandidates}
+          limit={pagination.limit}
+          onPageChange={page => setCurrentPage(page)}
+          onResetFilters={handleClearFilters}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
+      )}
 
       {/* Create / Edit Candidate Modal */}
       <CandidateFormModal
@@ -230,8 +303,9 @@ export const CandidatesPage: React.FC = () => {
         onConfirm={handleConfirmDelete}
         title="Delete Candidate Record"
         message={`Are you sure you want to delete ${deletingCandidate?.name}? This action removes their profile and interview history from the active pipeline.`}
-        confirmText="Delete Candidate"
+        confirmText={isDeleting ? 'Deleting...' : 'Delete Candidate'}
         variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );
