@@ -7,7 +7,7 @@ interface MetricCardProps {
   icon: LucideIcon;
   subtext?: string;
   badgeText?: string;
-  badgeColor?: 'emerald' | 'blue' | 'amber' | 'slate';
+  badgeColor?: 'emerald' | 'blue' | 'amber' | 'slate' | 'rose' | 'purple';
   accentColor?: string;
 }
 
@@ -24,6 +24,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     blue: 'bg-blue-50 text-blue-700 border-blue-200',
     amber: 'bg-amber-50 text-amber-700 border-amber-200',
     slate: 'bg-slate-100 text-slate-700 border-slate-200',
+    rose: 'bg-rose-50 text-rose-700 border-rose-200',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200',
   };
 
   return (

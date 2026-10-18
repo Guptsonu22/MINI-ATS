@@ -7,6 +7,7 @@ import {
   UpdateStagePayload,
   PaginationData,
   HealthCheckData,
+  AnalyticsData,
 } from '../types';
 
 export interface GetCandidatesResponse {
@@ -88,4 +89,16 @@ export const candidatesApi = {
     }
     return response.data;
   },
+
+  /**
+   * Fetch derived recruitment analytics from MongoDB
+   */
+  async getAnalytics(): Promise<AnalyticsData> {
+    const response = await apiClient.get<AnalyticsData>('/analytics');
+    if (!response.data) {
+      throw new Error('Analytics data not returned by API');
+    }
+    return response.data;
+  },
 };
+

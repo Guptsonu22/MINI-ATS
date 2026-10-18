@@ -96,3 +96,40 @@ export interface ApiResponse<T> {
     details?: Array<{ field: string; message: string }>;
   };
 }
+
+export interface StageCountItem {
+  stage: CanonicalStage;
+  count: number;
+  percentage: number;
+}
+
+export interface SourceCountItem {
+  source: string;
+  count: number;
+  percentage: number;
+}
+
+export interface RoleCountItem {
+  role: string;
+  count: number;
+  percentage: number;
+}
+
+export interface AnalyticsData {
+  totalCandidates: number;
+  activeCandidates: number; // Consistently defined as currentStage NOT IN ('Hired', 'Rejected')
+  hiredCandidates: number;
+  rejectedCandidates: number;
+  inInterview: number;
+  offersExtended: number;
+  screeningCount: number;
+  appliedCount: number;
+  averageExperience: number;
+  hireRate: number; // Percentage of total candidates that reached 'Hired'
+  stageDistribution: Record<CanonicalStage, number>;
+  stageBreakdown: StageCountItem[];
+  sourceBreakdown: SourceCountItem[];
+  roleBreakdown: RoleCountItem[];
+  recentCandidates: Candidate[];
+}
+
