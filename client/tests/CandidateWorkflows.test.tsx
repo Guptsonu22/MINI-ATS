@@ -515,7 +515,9 @@ describe('Phase 4: Candidate Integration Workflows & API Service', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Candidate Record Not Found')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /back to candidate directory/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /back to candidate directory/i })
+        ).toBeInTheDocument();
       });
     });
   });

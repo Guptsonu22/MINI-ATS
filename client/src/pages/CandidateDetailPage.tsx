@@ -198,7 +198,8 @@ export const CandidateDetailPage: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-slate-900">Candidate Record Not Found</h2>
           <p className="mt-1 text-sm text-slate-500 max-w-md mx-auto">
-            {error || 'The requested applicant record could not be found or retrieved from the database.'}
+            {error ||
+              'The requested applicant record could not be found or retrieved from the database.'}
           </p>
         </div>
         <div className="flex justify-center gap-3 pt-2">

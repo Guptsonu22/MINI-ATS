@@ -220,7 +220,7 @@ describe('Candidate REST API Endpoints', () => {
     });
 
     it('prevents updating email to one already used by another candidate (409 Conflict)', async () => {
-      const cand1 = await Candidate.create({
+      await Candidate.create({
         ...sampleCandidate,
         email: 'user1@example.com',
         currentStage: 'Applied',

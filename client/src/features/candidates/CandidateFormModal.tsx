@@ -291,7 +291,9 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
             required
             options={stageOptions}
             value={formData.currentStage}
-            onChange={e => setFormData({ ...formData, currentStage: e.target.value as CanonicalStage })}
+            onChange={e =>
+              setFormData({ ...formData, currentStage: e.target.value as CanonicalStage })
+            }
           />
         </div>
 

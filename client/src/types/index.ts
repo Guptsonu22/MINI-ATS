@@ -1,10 +1,4 @@
-export type CanonicalStage =
-  | 'Applied'
-  | 'Screening'
-  | 'Interview'
-  | 'Offer'
-  | 'Hired'
-  | 'Rejected';
+export type CanonicalStage = 'Applied' | 'Screening' | 'Interview' | 'Offer' | 'Hired' | 'Rejected';
 
 export interface StageHistoryEntry {
   fromStage: CanonicalStage | null;

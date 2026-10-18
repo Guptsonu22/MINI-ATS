@@ -9,6 +9,7 @@ This document describes the REST API endpoints for the **Mini Applicant Tracking
 ## 1. Standard Response Formats
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -19,6 +20,7 @@ This document describes the REST API endpoints for the **Mini Applicant Tracking
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -38,7 +40,9 @@ This document describes the REST API endpoints for the **Mini Applicant Tracking
 ---
 
 ## 2. Canonical Stages
+
 The system strictly enforces the following **6 canonical hiring stages**:
+
 - `Applied` — Initial stage upon candidate application.
 - `Screening` — Recruiter phone or resume screening.
 - `Interview` — Technical or behavioral interview rounds.
@@ -53,10 +57,12 @@ The system strictly enforces the following **6 canonical hiring stages**:
 ### A. System Health Check
 
 #### `GET /health`
+
 Returns system uptime, environment, Node version, and MongoDB connection status.
 
 - **Status Code:** `200 OK`
 - **Response Example:**
+
 ```json
 {
   "success": true,
@@ -83,9 +89,11 @@ Returns system uptime, environment, Node version, and MongoDB connection status.
 ### B. Candidate Management
 
 #### `POST /candidates`
+
 Creates a new candidate record in the ATS. Automatically normalizes email to lowercase, checks for duplicate email conflict, and initializes the first entry in `stageHistory`.
 
 - **Request Body (JSON):**
+
 ```json
 {
   "name": "Aarav Sharma",
@@ -119,6 +127,7 @@ Creates a new candidate record in the ATS. Automatically normalizes email to low
   - `409 Conflict`: Candidate with this email already exists (`code: "DUPLICATE_EMAIL"`).
 
 - **Response Example:**
+
 ```json
 {
   "success": true,
@@ -154,6 +163,7 @@ Creates a new candidate record in the ATS. Automatically normalizes email to low
 ---
 
 #### `GET /candidates`
+
 Lists candidate records with server-side pagination, text search, stage filtering, role filtering, experience filtering, and sorting.
 
 - **Query Parameters:**
@@ -172,6 +182,7 @@ Lists candidate records with server-side pagination, text search, stage filterin
   - `400 Bad Request`: Invalid query parameter types.
 
 - **Response Example:**
+
 ```json
 {
   "success": true,
@@ -204,6 +215,7 @@ Lists candidate records with server-side pagination, text search, stage filterin
 ---
 
 #### `GET /candidates/:id`
+
 Retrieves a single candidate record by MongoDB ObjectId, including the complete stage history audit trail.
 
 - **URL Parameters:**
@@ -217,9 +229,11 @@ Retrieves a single candidate record by MongoDB ObjectId, including the complete 
 ---
 
 #### `PATCH /candidates/:id`
+
 Updates general candidate details (name, phone, role, experience, skills, source, resumeUrl, notes). Performs email uniqueness check if changing email address.
 
 - **Request Body (JSON):** Partial candidate fields (at least one field required).
+
 ```json
 {
   "experience": 4,
@@ -236,9 +250,11 @@ Updates general candidate details (name, phone, role, experience, skills, source
 ---
 
 #### `PATCH /candidates/:id/stage`
+
 Transitions a candidate to a new canonical stage. Automatically records the transition event in `stageHistory` with previous stage, target stage, timestamp, recruiter note, and author.
 
 - **Request Body (JSON):**
+
 ```json
 {
   "stage": "Interview",
@@ -260,6 +276,7 @@ Transitions a candidate to a new canonical stage. Automatically records the tran
 ---
 
 #### `DELETE /candidates/:id`
+
 Permanently deletes a candidate record from the active database.
 
 - **URL Parameters:**
@@ -271,6 +288,7 @@ Permanently deletes a candidate record from the active database.
   - `404 Not Found`: Candidate not found.
 
 - **Response Example:**
+
 ```json
 {
   "success": true,

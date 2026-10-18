@@ -134,8 +134,8 @@ export const DashboardPage: React.FC = () => {
         <div className="space-y-0.5">
           <p className="font-semibold">Connected to Mini ATS Database</p>
           <p className="text-emerald-700 leading-relaxed">
-            Live applicant pipeline data synchronized with MongoDB. All metric counts, stage distributions,
-            and recent activity reflect real candidate database records.
+            Live applicant pipeline data synchronized with MongoDB. All metric counts, stage
+            distributions, and recent activity reflect real candidate database records.
           </p>
         </div>
       </div>

@@ -19,7 +19,10 @@ export const candidatesApi = {
    * Fetch paginated candidates with optional search and filters
    */
   async getCandidates(params?: CandidateQueryParams): Promise<GetCandidatesResponse> {
-    const response = await apiClient.get<Candidate[]>('/candidates', params as Record<string, string | number>);
+    const response = await apiClient.get<Candidate[]>(
+      '/candidates',
+      params as Record<string, string | number>
+    );
 
     const candidateList = Array.isArray(response.data) ? response.data : [];
 

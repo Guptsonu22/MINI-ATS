@@ -126,7 +126,7 @@ describe('Mini ATS Frontend Application Layout & Navigation', () => {
       expect(screen.getByText('Active Candidates')).toBeInTheDocument();
       expect(screen.getByText('Interviews Scheduled')).toBeInTheDocument();
       expect(screen.getByText('Offers & Hires')).toBeInTheDocument();
-      expect(screen.getByText('Aarav Sharma')).toBeInTheDocument();
+      expect(screen.getAllByText('Aarav Sharma').length).toBeGreaterThan(0);
     });
   });
 

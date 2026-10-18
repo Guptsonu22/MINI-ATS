@@ -51,7 +51,7 @@ class ApiClient {
         ...options,
         headers,
       });
-    } catch (networkErr) {
+    } catch {
       throw new ApiError(
         'Unable to connect to the ATS API server. Please check your network connection.',
         0,

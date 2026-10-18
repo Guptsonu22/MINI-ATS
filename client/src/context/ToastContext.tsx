@@ -40,17 +40,26 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     [removeToast]
   );
 
-  const showSuccess = useCallback((title: string, message?: string) => {
-    addToast(title, 'success', message);
-  }, [addToast]);
+  const showSuccess = useCallback(
+    (title: string, message?: string) => {
+      addToast(title, 'success', message);
+    },
+    [addToast]
+  );
 
-  const showError = useCallback((title: string, message?: string) => {
-    addToast(title, 'error', message);
-  }, [addToast]);
+  const showError = useCallback(
+    (title: string, message?: string) => {
+      addToast(title, 'error', message);
+    },
+    [addToast]
+  );
 
-  const showInfo = useCallback((title: string, message?: string) => {
-    addToast(title, 'info', message);
-  }, [addToast]);
+  const showInfo = useCallback(
+    (title: string, message?: string) => {
+      addToast(title, 'info', message);
+    },
+    [addToast]
+  );
 
   return (
     <ToastContext.Provider value={{ showSuccess, showError, showInfo, addToast, removeToast }}>
