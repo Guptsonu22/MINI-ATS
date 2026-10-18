@@ -61,7 +61,9 @@ export const CandidateTable: React.FC<CandidateTableProps> = ({
     );
   };
 
-  if (candidates.length === 0) {
+  const candidateList = Array.isArray(candidates) ? candidates : [];
+
+  if (candidateList.length === 0) {
     return (
       <EmptyState
         title="No candidates found"
@@ -116,7 +118,7 @@ export const CandidateTable: React.FC<CandidateTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {candidates.map(candidate => {
+            {candidateList.map(candidate => {
               const initials = candidate.name
                 .split(' ')
                 .map(n => n[0])

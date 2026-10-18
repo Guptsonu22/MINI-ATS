@@ -21,13 +21,15 @@ export const candidatesApi = {
   async getCandidates(params?: CandidateQueryParams): Promise<GetCandidatesResponse> {
     const response = await apiClient.get<Candidate[]>('/candidates', params as Record<string, string | number>);
 
+    const candidateList = Array.isArray(response.data) ? response.data : [];
+
     return {
-      candidates: response.data || [],
+      candidates: candidateList,
       pagination: response.pagination || {
         page: 1,
         limit: 10,
-        totalCandidates: (response.data || []).length,
-        totalPages: 1,
+        totalCandidates: candidateList.length,
+        totalPages: Math.max(1, Math.ceil(candidateList.length / 10)),
         hasNextPage: false,
         hasPrevPage: false,
       },

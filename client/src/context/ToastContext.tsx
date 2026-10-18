@@ -14,6 +14,7 @@ interface ToastContextValue {
   showSuccess: (title: string, message?: string) => void;
   showError: (title: string, message?: string) => void;
   showInfo: (title: string, message?: string) => void;
+  addToast: (title: string, type?: ToastType, message?: string) => void;
   removeToast: (id: string) => void;
 }
 
@@ -27,7 +28,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const addToast = useCallback(
-    (type: ToastType, title: string, message?: string) => {
+    (title: string, type: ToastType = 'info', message?: string) => {
       const id = `${Date.now()}-${Math.random()}`;
       setToasts(prev => [...prev, { id, type, title, message }]);
 
@@ -40,19 +41,19 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 
   const showSuccess = useCallback((title: string, message?: string) => {
-    addToast('success', title, message);
+    addToast(title, 'success', message);
   }, [addToast]);
 
   const showError = useCallback((title: string, message?: string) => {
-    addToast('error', title, message);
+    addToast(title, 'error', message);
   }, [addToast]);
 
   const showInfo = useCallback((title: string, message?: string) => {
-    addToast('info', title, message);
+    addToast(title, 'info', message);
   }, [addToast]);
 
   return (
-    <ToastContext.Provider value={{ showSuccess, showError, showInfo, removeToast }}>
+    <ToastContext.Provider value={{ showSuccess, showError, showInfo, addToast, removeToast }}>
       {children}
       {/* Toast Notification Container */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0">
