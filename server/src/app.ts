@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import { env } from './config/environment.js';
 import { healthRouter } from './routes/health.routes.js';
 import { candidateRouter } from './routes/candidate.routes.js';
+import { analyticsRouter } from './routes/analytics.routes.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -35,6 +36,7 @@ export const createApp = (): Application => {
   // API Routes
   app.use('/api', healthRouter);
   app.use('/api/candidates', candidateRouter);
+  app.use('/api/analytics', analyticsRouter);
 
   // Fallback 404 handler
   app.use(notFoundHandler);

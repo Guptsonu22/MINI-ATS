@@ -7,6 +7,7 @@ import {
   updateCandidateStageHandler,
   deleteCandidateHandler,
 } from '../controllers/candidate.controller.js';
+import { getAnalyticsHandler } from '../controllers/analytics.controller.js';
 import { validateBody, validateQuery, validateParams } from '../middleware/validate.js';
 import {
   createCandidateSchema,
@@ -21,6 +22,8 @@ export const candidateRouter = Router();
 candidateRouter.post('/', validateBody(createCandidateSchema), createCandidateHandler);
 
 candidateRouter.get('/', validateQuery(candidateQuerySchema), getCandidatesHandler);
+
+candidateRouter.get('/analytics', getAnalyticsHandler);
 
 candidateRouter.get('/:id', validateParams(candidateIdParamSchema), getCandidateByIdHandler);
 
