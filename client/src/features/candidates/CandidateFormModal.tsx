@@ -6,11 +6,12 @@ import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { Button } from '../../components/ui/Button';
 import { MOCK_ROLES, MOCK_SOURCES } from '../../data/mockCandidates';
+import { AlertCircle } from 'lucide-react';
 
 interface CandidateFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (candidateData: Partial<Candidate>) => void;
+  onSubmit: (candidateData: Partial<Candidate>) => Promise<void> | void;
   initialData?: Candidate | null;
   isLoading?: boolean;
 }
@@ -43,12 +44,14 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
     experience: 2,
     source: MOCK_SOURCES[0],
     skillsString: '',
-    currentStage: 'Applied' as CanonicalStage,
+    currentStage: 'Applied',
     resumeUrl: '',
     notes: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -65,6 +68,7 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
         notes: initialData.notes || '',
       });
       setErrors({});
+      setServerError(null);
     } else {
       setFormData({
         name: '',
@@ -79,6 +83,7 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
         notes: '',
       });
       setErrors({});
+      setServerError(null);
     }
   }, [initialData, isOpen]);
 
@@ -87,47 +92,72 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
 
     if (!formData.name.trim()) {
       newErrors.name = 'Full name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
     }
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email address is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'Please provide a valid email address';
     }
+
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     }
+
     if (formData.experience < 0 || formData.experience > 50) {
       newErrors.experience = 'Experience must be between 0 and 50 years';
     }
+
     if (!formData.skillsString.trim()) {
       newErrors.skillsString = 'Please enter at least one skill';
+    }
+
+    if (formData.resumeUrl && formData.resumeUrl.trim()) {
+      try {
+        new URL(formData.resumeUrl.trim());
+      } catch {
+        newErrors.resumeUrl = 'Please provide a valid URL (e.g. https://example.com/resume.pdf)';
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    setServerError(null);
+
+    if (!validate() || isSubmitting || isLoading) return;
 
     const skills = formData.skillsString
       .split(',')
       .map(s => s.trim())
       .filter(Boolean);
 
-    onSubmit({
-      name: formData.name.trim(),
-      email: formData.email.trim().toLowerCase(),
-      phone: formData.phone.trim(),
-      appliedRole: formData.appliedRole,
-      experience: Number(formData.experience),
-      source: formData.source,
-      skills,
-      currentStage: formData.currentStage,
-      resumeUrl: formData.resumeUrl.trim() || undefined,
-      notes: formData.notes.trim() || undefined,
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        appliedRole: formData.appliedRole,
+        experience: Number(formData.experience),
+        source: formData.source,
+        skills,
+        currentStage: formData.currentStage,
+        resumeUrl: formData.resumeUrl.trim() || undefined,
+        notes: formData.notes.trim() || undefined,
+      });
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : 'An error occurred while saving the candidate.';
+      setServerError(errorMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const stageOptions = [
@@ -138,6 +168,8 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
     { label: 'Hired', value: 'Hired' },
     { label: 'Rejected', value: 'Rejected' },
   ];
+
+  const disableActions = isSubmitting || isLoading;
 
   return (
     <Modal
@@ -152,23 +184,39 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
       maxWidth="xl"
       footer={
         <>
-          <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={disableActions}>
             Cancel
           </Button>
-          <Button variant="primary" size="sm" onClick={handleSubmit} isLoading={isLoading}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleSubmit}
+            isLoading={disableActions}
+            disabled={disableActions}
+          >
             {isEditing ? 'Save Changes' : 'Create Candidate'}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {serverError && (
+          <div className="flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+            <AlertCircle className="h-4 w-4 text-rose-600 mt-0.5 flex-shrink-0" />
+            <span>{serverError}</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Full Name */}
           <Input
             label="Full Name"
             required
             value={formData.name}
-            onChange={e => setFormData({ ...formData, name: e.target.value })}
+            onChange={e => {
+              setFormData({ ...formData, name: e.target.value });
+              if (errors.name) setErrors({ ...errors, name: '' });
+            }}
             placeholder="e.g. John Doe"
             error={errors.name}
           />
@@ -179,7 +227,10 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
             type="email"
             required
             value={formData.email}
-            onChange={e => setFormData({ ...formData, email: e.target.value })}
+            onChange={e => {
+              setFormData({ ...formData, email: e.target.value });
+              if (errors.email) setErrors({ ...errors, email: '' });
+            }}
             placeholder="e.g. john.doe@example.com"
             error={errors.email}
           />
@@ -191,7 +242,10 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
             label="Phone Number"
             required
             value={formData.phone}
-            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+            onChange={e => {
+              setFormData({ ...formData, phone: e.target.value });
+              if (errors.phone) setErrors({ ...errors, phone: '' });
+            }}
             placeholder="e.g. +91 98765 43210"
             error={errors.phone}
           />
@@ -215,7 +269,10 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
             max={50}
             required
             value={formData.experience}
-            onChange={e => setFormData({ ...formData, experience: Number(e.target.value) })}
+            onChange={e => {
+              setFormData({ ...formData, experience: Number(e.target.value) });
+              if (errors.experience) setErrors({ ...errors, experience: '' });
+            }}
             error={errors.experience}
           />
 
@@ -234,9 +291,7 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
             required
             options={stageOptions}
             value={formData.currentStage}
-            onChange={e =>
-              setFormData({ ...formData, currentStage: e.target.value as CanonicalStage })
-            }
+            onChange={e => setFormData({ ...formData, currentStage: e.target.value as CanonicalStage })}
           />
         </div>
 
@@ -245,7 +300,10 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
           label="Key Skills"
           required
           value={formData.skillsString}
-          onChange={e => setFormData({ ...formData, skillsString: e.target.value })}
+          onChange={e => {
+            setFormData({ ...formData, skillsString: e.target.value });
+            if (errors.skillsString) setErrors({ ...errors, skillsString: '' });
+          }}
           placeholder="e.g. React, TypeScript, Node.js, Tailwind CSS"
           helperText="Enter skills separated by commas"
           error={errors.skillsString}
@@ -256,8 +314,12 @@ export const CandidateFormModal: React.FC<CandidateFormModalProps> = ({
           label="Resume Link (Optional)"
           type="url"
           value={formData.resumeUrl}
-          onChange={e => setFormData({ ...formData, resumeUrl: e.target.value })}
+          onChange={e => {
+            setFormData({ ...formData, resumeUrl: e.target.value });
+            if (errors.resumeUrl) setErrors({ ...errors, resumeUrl: '' });
+          }}
           placeholder="https://example.com/resumes/candidate.pdf"
+          error={errors.resumeUrl}
         />
 
         {/* Notes */}
