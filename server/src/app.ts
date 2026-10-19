@@ -16,9 +16,13 @@ export const createApp = (): Application => {
   app.use(helmet());
 
   // CORS configuration
+  const allowedOrigins = env.CLIENT_ORIGIN.includes(',')
+    ? env.CLIENT_ORIGIN.split(',').map(s => s.trim())
+    : env.CLIENT_ORIGIN;
+
   app.use(
     cors({
-      origin: env.CLIENT_ORIGIN,
+      origin: allowedOrigins,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       credentials: true,
     })
@@ -29,9 +33,9 @@ export const createApp = (): Application => {
     app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
   }
 
-  // Body parsing
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // Body parsing with safe size limits (prevents payload flooding)
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
   // API Routes
   app.use('/api', healthRouter);
