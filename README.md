@@ -37,10 +37,10 @@
 
 | Resource                    | Link                                                                     |
 | --------------------------- | ------------------------------------------------------------------------ |
-| **Live Web App (Vercel)**   | `https://<your-vercel-app>.vercel.app` _(add live URL after deployment)_ |
-| **Backend Health Endpoint** | `https://<your-render-api>.onrender.com/api/health`                      |
-| **GitHub Repository**       | `https://github.com/Guptsonu22/MINI-ATS`                                 |
-| **Video Walkthrough Demo**  | _(add Loom or YouTube link)_                                             |
+| **Live Web App (Vercel)**   | [https://mini-ats-alpha.vercel.app](https://mini-ats-alpha.vercel.app)   |
+| **Backend Health Endpoint** | [https://mini-ats-60bk.onrender.com/api/health](https://mini-ats-60bk.onrender.com/api/health) |
+| **GitHub Repository**       | [https://github.com/Guptsonu22/MINI-ATS](https://github.com/Guptsonu22/MINI-ATS) |
+| **Video Walkthrough Demo**  | *(add Loom or YouTube link)*                                             |
 
 ---
 
