@@ -15,7 +15,6 @@ import {
   RefreshCw,
   Clock,
   Send,
-  HelpCircle,
 } from 'lucide-react';
 import { MetricCard } from '../features/dashboard/MetricCard';
 import { StageDistributionChart } from '../features/dashboard/StageDistributionChart';
