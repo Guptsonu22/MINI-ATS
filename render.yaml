@@ -12,8 +12,8 @@ services:
     # Tell Render where the server package lives
     rootDir: server
 
-    # Build step: compile TypeScript to dist/
-    buildCommand: npm install && npm run build
+    # Build step: compile TypeScript to dist/ (include dev dependencies for build tools)
+    buildCommand: npm install --include=dev && npm run build
 
     # Start step: run the compiled output
     startCommand: npm run start

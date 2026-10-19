@@ -407,7 +407,7 @@ The Mini ATS is engineered for zero-cost deployment using **MongoDB Atlas**, **R
 1. Create a **New Web Service** on [Render.com](https://render.com) and connect your GitHub repository.
 2. Configure settings:
    - **Root Directory**: `server`
-   - **Build Command**: `npm install && npm run build`
+   - **Build Command**: `npm install --include=dev && npm run build`
    - **Start Command**: `npm run start`
    - **Health Check Path**: `/api/health`
 3. Add Environment Variables in Render:
