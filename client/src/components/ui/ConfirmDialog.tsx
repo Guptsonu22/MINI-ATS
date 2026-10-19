@@ -60,7 +60,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <Info className="h-5 w-5" />
           )}
         </div>
-        <p className="text-sm text-slate-600 leading-relaxed pt-1">{message}</p>
+        <p id="confirm-dialog-description" className="text-sm text-slate-600 leading-relaxed pt-1">
+          {message}
+        </p>
       </div>
     </Modal>
   );
