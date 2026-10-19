@@ -20,14 +20,12 @@ A lightweight, full-stack **Applicant Tracking System (ATS)** built for recruitm
 4. [Technology Stack](#4-technology-stack)
 5. [Project Structure](#5-project-structure)
 6. [Local Setup & Installation](#6-local-setup--installation)
-7. [Environment Variables](#7-environment-variables)
-8. [Available Scripts](#8-available-scripts)
-9. [REST API Overview](#9-rest-api-overview)
-10. [Testing & Quality Checks](#10-testing--quality-checks)
-11. [Deployment Guide](#11-deployment-guide)
-12. [Security Considerations](#12-security-considerations)
-13. [Known Limitations](#13-known-limitations)
-14. [License & Assessment Context](#14-license--assessment-context)
+7. [Available Scripts](#7-available-scripts)
+8. [REST API Overview](#8-rest-api-overview)
+9. [Testing & Quality Checks](#9-testing--quality-checks)
+10. [Security Considerations](#10-security-considerations)
+11. [Known Limitations](#11-known-limitations)
+12. [License & Assessment Context](#12-license--assessment-context)
 
 ---
 
@@ -38,7 +36,7 @@ A lightweight, full-stack **Applicant Tracking System (ATS)** built for recruitm
 | **Live Web Application (Vercel)**    | [https://mini-ats-alpha.vercel.app](https://mini-ats-alpha.vercel.app)                         |
 | **Backend Health Endpoint (Render)** | [https://mini-ats-60bk.onrender.com/api/health](https://mini-ats-60bk.onrender.com/api/health) |
 | **GitHub Repository**                | [https://github.com/Guptsonu22/MINI-ATS](https://github.com/Guptsonu22/MINI-ATS)               |
-| **Demo Video Walkthrough**           | _Pending recording (see evaluator demo script below)_                                          |
+                                         |
 
 ---
 
@@ -276,24 +274,7 @@ npm run dev
 
 ---
 
-## 7. Environment Variables
-
-### Unified Configuration Reference
-
-| Scope      | Variable           |  Required  | Default                                          | Description                                                           |
-| ---------- | ------------------ | :--------: | ------------------------------------------------ | --------------------------------------------------------------------- |
-| **Server** | `PORT`             |     No     | `5000`                                           | Port for Express HTTP server (`10000` on Render)                      |
-| **Server** | `NODE_ENV`         |     No     | `development`                                    | Runtime mode: `development`, `production`, or `test`                  |
-| **Server** | `MONGODB_URI`      |  **Yes**   | `mongodb://127.0.0.1:27017/mini_ats`             | MongoDB connection URI (Atlas SRV or local connection)                |
-| **Server** | `MONGODB_TEST_URI` |     No     | `mongodb://127.0.0.1:27017/mini_ats_test_runner` | Isolated test database URI (must contain `test` in name)              |
-| **Server** | `CLIENT_ORIGIN`    |  **Yes**   | `http://localhost:5173`                          | Allowed CORS origins (Vercel URL or comma-separated list)             |
-| **Client** | `VITE_API_URL`     | Production | `""` (empty)                                     | Public backend API URL (e.g. `https://<render-app>.onrender.com/api`) |
-
-> 🔒 **Client-Side Secret Warning**: Variables prefixed with `VITE_` are embedded into client-side JavaScript bundles during compilation. Never place database passwords, API secrets, or private keys into `client/.env` or `VITE_` variables.
-
----
-
-## 8. Available Scripts
+## 7. Available Scripts
 
 The root `package.json` coordinates all tasks across workspaces:
 
@@ -321,7 +302,7 @@ npm run seed              # Seed database with sample candidate records
 
 ---
 
-## 9. REST API Overview
+## 8. REST API Overview
 
 All routes are served under the `/api` prefix. Responses return a standard JSON envelope:
 
@@ -350,7 +331,7 @@ For detailed request/response schemas, sample payloads, and query parameter docu
 
 ---
 
-## 10. Testing & Quality Checks
+## 9. Testing & Quality Checks
 
 The project includes **66 automated tests** across 8 test suites verifying backend endpoints, database queries, frontend workflows, and accessibility.
 
@@ -381,57 +362,7 @@ npm run build        # Production builds for server (tsc) and client (Vite)
 
 ---
 
-## 11. Deployment Guide
-
-The application is deployed across three services:
-
-- **Frontend**: [Vercel](https://vercel.com) (Static React SPA with client-side routing)
-- **Backend**: [Render](https://render.com) (Node.js Web Service)
-- **Database**: [MongoDB Atlas](https://cloud.mongodb.com) (M0 Free Tier)
-
-### 1. Database Setup (MongoDB Atlas)
-
-1. Create a free **M0 cluster** in your preferred region.
-2. Under **Database Access**, create a user with read/write privileges on the `mini_ats` database.
-3. Under **Network Access**, allow access from Render's cloud servers (`0.0.0.0/0` or Render's outbound IPs).
-4. Obtain the connection string:
-   ```
-   mongodb+srv://<user>:<password>@<cluster>.mongodb.net/mini_ats?retryWrites=true&w=majority
-   ```
-
-### 2. Backend API Deployment (Render)
-
-1. Create a **New Web Service** pointing to your repository.
-2. Configure settings:
-   - **Root Directory**: `server`
-   - **Build Command**: `npm install --include=dev && npm run build`
-   - **Start Command**: `npm run start`
-   - **Health Check Path**: `/api/health`
-3. Add Environment Variables:
-   - `NODE_ENV`: `production`
-   - `PORT`: `10000`
-   - `MONGODB_URI`: _(Your Atlas connection string)_
-   - `CLIENT_ORIGIN`: `https://<your-vercel-app>.vercel.app` _(update after frontend deployment)_
-
-### 3. Frontend Deployment (Vercel)
-
-1. Create a **New Project** and import the repository.
-2. Configure project settings:
-   - **Framework Preset**: `Vite`
-   - **Root Directory**: `client`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-3. Add Environment Variable:
-   - `VITE_API_URL`: `https://<your-render-service>.onrender.com/api` _(include the `/api` prefix)_
-4. Deploy the project. The included [`client/vercel.json`](client/vercel.json) rewrites all nested paths (`/*`) to `/index.html` to support deep-linking and browser refreshes without 404 errors.
-
-### 4. Wire Production CORS
-
-In the Render dashboard, update `CLIENT_ORIGIN` to match your production Vercel URL (without trailing slash, e.g. `https://mini-ats-alpha.vercel.app`). The server automatically normalizes origins to ensure preflight requests pass.
-
----
-
-## 12. Security Considerations
+## 10. Security Considerations
 
 - **Secret Isolation**: All credentials (`MONGODB_URI`) are stored in untracked `.env` files or hosting dashboards. The root `.gitignore` excludes `.env*` files.
 - **Server-Side Validation**: Every request is validated by Zod schemas before database execution. Client-side validation is supplemented by server enforcement.
@@ -443,7 +374,7 @@ In the Render dashboard, update `CLIENT_ORIGIN` to match your production Vercel 
 
 ---
 
-## 13. Known Limitations
+## 11. Known Limitations
 
 - **Render Free-Tier Cold Starts**: Free Render web services spin down after 15 minutes of inactivity. The initial request following a sleep period may take 25–40 seconds to complete. Subsequent requests respond in milliseconds.
 - **Single-Tenant / Unauthenticated**: The application is designed as an intern assessment demonstration and does not implement multi-tenant tenancy, role-based access control, or user authentication.
@@ -451,7 +382,7 @@ In the Render dashboard, update `CLIENT_ORIGIN` to match your production Vercel 
 
 ---
 
-## 14. License & Assessment Context
+## 12. License & Assessment Context
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
