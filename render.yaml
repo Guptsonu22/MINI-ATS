@@ -1,0 +1,33 @@
+# render.yaml — Render.com deployment configuration
+# Deploy this repository to Render to host the Mini ATS backend API.
+# See: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: mini-ats-api
+    runtime: node
+    region: oregon  # Choose closest to your users
+    plan: free       # Render free tier (sleeps after 15 min inactivity)
+
+    # Tell Render where the server package lives
+    rootDir: server
+
+    # Build step: compile TypeScript to dist/
+    buildCommand: npm install && npm run build
+
+    # Start step: run the compiled output
+    startCommand: npm run start
+
+    # Health check — Render pings this to confirm the service is up
+    healthCheckPath: /api/health
+
+    # Environment variables — set secret values in the Render dashboard,
+    # NOT here. Only put non-secret defaults below.
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000          # Render assigns this port automatically; keep aligned
+      # The following MUST be set in the Render dashboard (never commit secrets):
+      # - key: MONGODB_URI        → your MongoDB Atlas connection string
+      # - key: CLIENT_ORIGIN      → your Vercel frontend URL, e.g. https://mini-ats.vercel.app

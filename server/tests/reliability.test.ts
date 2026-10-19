@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { Candidate } from '../src/models/candidate.model.js';
-import { CANONICAL_STAGES, CanonicalStage } from '../src/constants/stages.js';
 
 const app = createApp();
 
