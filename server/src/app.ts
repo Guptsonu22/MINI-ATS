@@ -15,14 +15,24 @@ export const createApp = (): Application => {
   // Security headers
   app.use(helmet());
 
-  // CORS configuration
-  const allowedOrigins = env.CLIENT_ORIGIN.includes(',')
-    ? env.CLIENT_ORIGIN.split(',').map(s => s.trim())
-    : env.CLIENT_ORIGIN;
+  // CORS configuration — robust origin matching (handles trailing slashes and echoes browser origin)
+  const configuredOrigins = env.CLIENT_ORIGIN.split(',')
+    .map(s => s.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
   app.use(
     cors({
-      origin: allowedOrigins,
+      origin: (requestOrigin, callback) => {
+        if (!requestOrigin) return callback(null, true);
+        const normalized = requestOrigin.replace(/\/+$/, '');
+        const isAllowed = configuredOrigins.some(
+          allowed => allowed === '*' || allowed === normalized || allowed === requestOrigin
+        );
+        if (isAllowed) {
+          return callback(null, requestOrigin);
+        }
+        return callback(null, false);
+      },
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       credentials: true,
     })
