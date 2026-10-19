@@ -36,7 +36,6 @@ A lightweight, full-stack **Applicant Tracking System (ATS)** built for recruitm
 | **Live Web Application (Vercel)**    | [https://mini-ats-alpha.vercel.app](https://mini-ats-alpha.vercel.app)                         |
 | **Backend Health Endpoint (Render)** | [https://mini-ats-60bk.onrender.com/api/health](https://mini-ats-60bk.onrender.com/api/health) |
 | **GitHub Repository**                | [https://github.com/Guptsonu22/MINI-ATS](https://github.com/Guptsonu22/MINI-ATS)               |
-                                         |
 
 ---
 
