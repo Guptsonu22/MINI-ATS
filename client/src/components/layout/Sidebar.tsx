@@ -45,11 +45,10 @@ export const Sidebar: React.FC = () => {
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs">
           <div className="flex items-center gap-2 font-medium text-slate-800">
             <Sparkles className="h-4 w-4 text-brand-600" />
-            <span>Frontend Preview</span>
+            <span>Mini ATS Active</span>
           </div>
           <p className="mt-1 text-slate-500 leading-relaxed">
-            Phase 2 UI layout with responsive mobile navigation and interactive presentation mock
-            data.
+            Full-stack recruitment system with candidate pipeline, real-time analytics, and status tracking.
           </p>
         </div>
       </div>

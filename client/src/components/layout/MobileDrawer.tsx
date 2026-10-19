@@ -105,10 +105,10 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs">
           <div className="flex items-center gap-2 font-medium text-slate-800">
             <HelpCircle className="h-4 w-4 text-brand-600" />
-            <span>Intern Assignment</span>
+            <span>Mini ATS</span>
           </div>
           <p className="mt-1 text-slate-500">
-            Phase 2: Complete frontend layout, table, modal, and responsive navigation.
+            Full-stack ATS with candidate management, pipeline tracking, and live analytics.
           </p>
         </div>
       </div>
