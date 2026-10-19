@@ -12,6 +12,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, helperText, leftIcon, rightIcon, id, className = '', ...props }, ref) => {
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
+    const errorId = inputId ? `${inputId}-error` : undefined;
+    const helperId = inputId ? `${inputId}-helper` : undefined;
+    const describedBy = error ? errorId : helperText ? helperId : undefined;
+
     return (
       <div className="w-full space-y-1.5 text-left">
         {label && (
@@ -29,6 +33,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             id={inputId}
             ref={ref}
+            aria-invalid={Boolean(error)}
+            aria-describedby={describedBy}
+            aria-required={props.required}
             className={`block w-full rounded-lg border text-sm transition-colors duration-150 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:bg-slate-50 disabled:text-slate-400 ${
               leftIcon ? 'pl-9' : 'pl-3'
             } ${rightIcon ? 'pr-9' : 'pr-3'} py-2 ${
@@ -45,9 +52,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error ? (
-          <p className="text-xs text-rose-600 font-medium">{error}</p>
+          <p id={errorId} role="alert" className="text-xs text-rose-600 font-medium">
+            {error}
+          </p>
         ) : helperText ? (
-          <p className="text-xs text-slate-500">{helperText}</p>
+          <p id={helperId} className="text-xs text-slate-500">
+            {helperText}
+          </p>
         ) : null}
       </div>
     );

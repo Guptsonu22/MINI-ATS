@@ -10,6 +10,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, helperText, id, rows = 3, className = '', ...props }, ref) => {
     const textareaId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
+    const errorId = textareaId ? `${textareaId}-error` : undefined;
+    const helperId = textareaId ? `${textareaId}-helper` : undefined;
+    const describedBy = error ? errorId : helperText ? helperId : undefined;
+
     return (
       <div className="w-full space-y-1.5 text-left">
         {label && (
@@ -22,6 +26,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           ref={ref}
           rows={rows}
+          aria-invalid={Boolean(error)}
+          aria-describedby={describedBy}
+          aria-required={props.required}
           className={`block w-full rounded-lg border text-sm transition-colors duration-150 p-3 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:bg-slate-50 disabled:text-slate-400 ${
             error
               ? 'border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-200'
@@ -30,9 +37,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {...props}
         />
         {error ? (
-          <p className="text-xs text-rose-600 font-medium">{error}</p>
+          <p id={errorId} role="alert" className="text-xs text-rose-600 font-medium">
+            {error}
+          </p>
         ) : helperText ? (
-          <p className="text-xs text-slate-500">{helperText}</p>
+          <p id={helperId} className="text-xs text-slate-500">
+            {helperText}
+          </p>
         ) : null}
       </div>
     );

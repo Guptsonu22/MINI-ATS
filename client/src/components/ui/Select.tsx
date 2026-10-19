@@ -18,6 +18,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, helperText, options, placeholder, id, className = '', ...props }, ref) => {
     const selectId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
+    const errorId = selectId ? `${selectId}-error` : undefined;
+    const helperId = selectId ? `${selectId}-helper` : undefined;
+    const describedBy = error ? errorId : helperText ? helperId : undefined;
+
     return (
       <div className="w-full space-y-1.5 text-left">
         {label && (
@@ -30,6 +34,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           <select
             id={selectId}
             ref={ref}
+            aria-invalid={Boolean(error)}
+            aria-describedby={describedBy}
+            aria-required={props.required}
             className={`block w-full appearance-none rounded-lg border text-sm transition-colors duration-150 pl-3 pr-10 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:bg-slate-50 disabled:text-slate-400 ${
               error
                 ? 'border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-200'
@@ -53,9 +60,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           </div>
         </div>
         {error ? (
-          <p className="text-xs text-rose-600 font-medium">{error}</p>
+          <p id={errorId} role="alert" className="text-xs text-rose-600 font-medium">
+            {error}
+          </p>
         ) : helperText ? (
-          <p className="text-xs text-slate-500">{helperText}</p>
+          <p id={helperId} className="text-xs text-slate-500">
+            {helperText}
+          </p>
         ) : null}
       </div>
     );
