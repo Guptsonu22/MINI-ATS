@@ -1,6 +1,7 @@
 import { connectDatabase, disconnectDatabase } from '../config/database.js';
 import { Candidate } from '../models/candidate.model.js';
 import { CanonicalStage } from '../constants/stages.js';
+import { env } from '../config/environment.js';
 
 interface SeedCandidate {
   name: string;
@@ -431,6 +432,12 @@ const seedCandidates: SeedCandidate[] = [
 ];
 
 export const seedDatabase = async (): Promise<void> => {
+  if (env.NODE_ENV === 'production' && process.env.ALLOW_SEED_IN_PRODUCTION !== 'true') {
+    console.error('❌ Refusing to run seed in production environment! Candidate data would be wiped.');
+    console.error('Set ALLOW_SEED_IN_PRODUCTION=true if you explicitly intend to reset production data.');
+    process.exit(1);
+  }
+
   try {
     await connectDatabase();
 
